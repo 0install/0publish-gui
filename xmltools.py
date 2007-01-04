@@ -11,8 +11,9 @@ def set_data(elem, value):
 	"""Replace all children of 'elem' with a single text node containing 'value'"""
 	for node in elem.childNodes:
 		elem.removeChild(node)
-	text = elem.ownerDocument.createTextNode(value)
-	elem.appendChild(text)
+	if value:
+		text = elem.ownerDocument.createTextNode(value)
+		elem.appendChild(text)
 
 def indent_of(x):
 	"""If x's previous sibling is whitespace, return its length. Otherwise, return 0."""
@@ -61,11 +62,17 @@ def format_para(para):
 	lines = [l.strip() for l in para.split('\n')]
 	return ' '.join(filter(None, lines))
 
-def children(parent, localName, uri = XMLNS_INTERFACE):
-	"""Yield all direct child elements with this name."""
+def attrs_match(elem, attrs):
+	for x in attrs:
+		if not elem.hasAttribute(x): return False
+		if elem.getAttribute(x) != attrs[x]: return False
+	return True
+
+def children(parent, localName, uri = XMLNS_INTERFACE, attrs = {}):
+	"""Yield all direct child elements with this name and attributes."""
 	for x in parent.childNodes:
 		if x.nodeType == Node.ELEMENT_NODE:
-			if x.nodeName == localName and x.namespaceURI == uri:
+			if x.nodeName == localName and x.namespaceURI == uri and attrs_match(x, attrs):
 				yield x
 
 def singleton_text(parent, localName, uri = XMLNS_INTERFACE):

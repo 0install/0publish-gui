@@ -132,7 +132,7 @@ class FeedEditor:
 	
 	def update_doc(self):
 		root = self.doc.documentElement
-		def update(name, required = False):
+		def update(name, required = False, attrs = {}, value_attr = None):
 			widget = self.wTree.get_widget('feed_' + name)
 			if isinstance(widget, g.TextView):
 				buffer = widget.get_buffer()
@@ -141,12 +141,20 @@ class FeedEditor:
 				value = '\n' + '\n\n'.join(paras)
 			else:
 				value = widget.get_text()
-			elems = list(children(root, name))
+			elems = list(children(root, name, attrs = attrs))
 			if value:
-				if not elems:
-					elems = [create_element(root, name,
-							        before = ['group', 'implementation', 'requires'])]
-				set_data(elems[0], value)
+				if elems:
+					elem = elems[0]
+				else:
+					elem = create_element(root, name,
+							        before = ['group', 'implementation', 'requires'])
+					for x in attrs:
+						elem.setAttribute(x, attrs[x])
+				if value_attr:
+					elem.setAttribute(value_attr, value)
+					set_data(elem, None)
+				else:
+					set_data(elem, value)
 			else:
 				if required:
 					raise Exception('Missing required field "%s"' % name)
@@ -157,6 +165,13 @@ class FeedEditor:
 		update('summary', True)
 		update('description', True)
 		update('homepage')
+		update('icon', attrs = {'type': 'image/png'}, value_attr = 'href')
+
+		uri = self.wTree.get_widget('feed_url').get_text()
+		if uri:
+			root.setAttribute('uri', uri)
+		elif root.hasAttribute('uri'):
+			root.removeAttribute('uri')
 	
 	def save(self):
 		self.update_doc()
