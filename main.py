@@ -172,6 +172,10 @@ class FeedEditor:
 			root.setAttribute('uri', uri)
 		elif root.hasAttribute('uri'):
 			root.removeAttribute('uri')
+
+		key_menu = self.wTree.get_widget('feed_key')
+		key_model = key_menu.get_model()
+		self.key = key_model[key_menu.get_active()][0]
 	
 	def save(self):
 		self.update_doc()
@@ -179,5 +183,5 @@ class FeedEditor:
 			sign = signing.sign_xml
 		else:
 			sign = signing.sign_unsigned
-		data = self.doc.toxml()
+		data = self.doc.toxml() + '\n'
 		sign(self.pathname, data, self.key)
