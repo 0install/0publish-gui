@@ -1,10 +1,11 @@
 from xml.dom import Node, minidom
 
-import rox, os, pango, sys
+import rox, os, pango, sys, textwrap
 from rox import g
 import gtk.glade
 
 import signing
+from xmltools import *
 
 RESPONSE_SAVE = 1
 RESPONSE_SAVE_AND_TEST = 0
@@ -37,31 +38,11 @@ def choose_feed():
 	chooser.destroy()
 	return FeedEditor(path)
 
-XMLNS_INTERFACE = "http://zero-install.sourceforge.net/2004/injector/interface"
-
 emptyFeed = """<?xml version='1.0'?>
-<interface xmlns="%s"/>
+<interface xmlns="%s">
+  <name>Name</name>
+</interface>
 """ % (XMLNS_INTERFACE)
-
-def data(node):
-	"""Return all the text directly inside this DOM Node."""
-	return ''.join([text.nodeValue for text in node.childNodes
-			if text.nodeType == Node.TEXT_NODE])
-
-def format_para(para):
-	lines = [l.strip() for l in para.split('\n')]
-	return ' '.join(filter(None, lines))
-
-def children(parent, localName, uri = XMLNS_INTERFACE):
-	for x in parent.childNodes:
-		if x.nodeType == Node.ELEMENT_NODE:
-			if x.nodeName == localName and x.namespaceURI == uri:
-				yield x
-
-def singleton_text(parent, localName, uri = XMLNS_INTERFACE):
-	elements = list(children(parent, localName, uri))
-	if elements:
-		return data(elements[0])
 
 class FeedEditor:
 	def __init__(self, pathname):
@@ -129,7 +110,7 @@ class FeedEditor:
 				self.wTree.get_widget('feed_icon').set_text(href)
 				break
 
-		description = singleton_text(root, 'description')
+		description = singleton_text(root, 'description') or ''
 		paragraphs = [format_para(p) for p in description.split('\n\n')]
 		buffer = self.wTree.get_widget('feed_description').get_buffer()
 		buffer.delete(buffer.get_start_iter(), buffer.get_end_iter())
@@ -149,5 +130,39 @@ class FeedEditor:
 		else:
 			key_menu.set_active(0)
 	
+	def update_doc(self):
+		root = self.doc.documentElement
+		def update(name, required = False):
+			widget = self.wTree.get_widget('feed_' + name)
+			if isinstance(widget, g.TextView):
+				buffer = widget.get_buffer()
+				text = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
+				paras = ['\n'.join(textwrap.wrap(para, 80)) for para in text.split('\n') if para.strip()]
+				value = '\n' + '\n\n'.join(paras)
+			else:
+				value = widget.get_text()
+			elems = list(children(root, name))
+			if value:
+				if not elems:
+					elems = [create_element(root, name,
+							        before = ['group', 'implementation', 'requires'])]
+				set_data(elems[0], value)
+			else:
+				if required:
+					raise Exception('Missing required field "%s"' % name)
+				for e in elems:
+					remove_element(e)
+			
+		update('name', True)
+		update('summary', True)
+		update('description', True)
+		update('homepage')
+	
 	def save(self):
-		pass
+		self.update_doc()
+		if self.key:
+			sign = signing.sign_xml
+		else:
+			sign = signing.sign_unsigned
+		data = self.doc.toxml()
+		sign(self.pathname, data, self.key)
