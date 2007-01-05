@@ -1,14 +1,14 @@
 from xml.dom import Node, minidom
 
-import rox, os, pango, sys, textwrap
+import rox, os, pango, sys, textwrap, traceback, subprocess
 from rox import g, tasks
 import gtk.glade
 
 import signing
 from xmltools import *
 
-RESPONSE_SAVE = 1
-RESPONSE_SAVE_AND_TEST = 0
+RESPONSE_SAVE = 0
+RESPONSE_SAVE_AND_TEST = 1
 
 gladefile = os.path.join(rox.app_dir, '0publish-gui.glade')
 
@@ -63,7 +63,7 @@ class FeedEditor:
 			if resp == g.RESPONSE_HELP:
 				help_box.present()
 			elif resp == RESPONSE_SAVE_AND_TEST:
-				self.save()
+				self.save(self.test)
 			elif resp == RESPONSE_SAVE:
 				self.save()
 			else:
@@ -92,6 +92,18 @@ class FeedEditor:
 			self.doc = minidom.parseString(emptyFeed)
 			self.key = None
 			key_menu.set_active(0)
+
+		impl_model = g.TreeStore(str)
+		impl_tree = self.wTree.get_widget('impl_tree')
+		impl_tree.set_model(impl_model)
+
+		#self.attr_model = g.ListStore(str, str)
+		#attributes = self.wTree.get_widget('attributes')
+		#attributes.set_model(self.attr_model)
+		#text = g.CellRendererText()
+		#for title in ['Attribute', 'Value']:
+		#	column = g.TreeViewColumn(title, text)
+		#	attributes.append_column(column)
 	
 	def update_fields(self):
 		root = self.doc.documentElement
@@ -129,6 +141,24 @@ class FeedEditor:
 			key_menu.set_active(i)
 		else:
 			key_menu.set_active(0)
+
+	def test(self):
+		child = os.fork()
+		if child == 0:
+			try:
+				try:
+					# We are the child
+					# Spawn a grandchild and exit
+					subprocess.Popen(['0launch', '--gui', self.pathname])
+					os._exit(0)
+				except:
+					traceback.print_exc()
+			finally:
+				os._exit(1)
+		pid, status = os.waitpid(child, 0)
+		assert pid == child
+		if status:
+			raise Exception('Failed to run 0launch - status code %d' % status)
 	
 	def update_doc(self):
 		root = self.doc.documentElement
@@ -177,7 +207,7 @@ class FeedEditor:
 		key_model = key_menu.get_model()
 		self.key = key_model[key_menu.get_active()][0]
 	
-	def save(self):
+	def save(self, callback = None):
 		self.update_doc()
 		if self.key:
 			sign = signing.sign_xml
@@ -185,7 +215,7 @@ class FeedEditor:
 			sign = signing.sign_unsigned
 		data = self.doc.toxml() + '\n'
 
-		gen = sign(self.pathname, data, self.key)
+		gen = sign(self.pathname, data, self.key, callback)
 		# May require interaction to get the pass-phrase, so run in the background...
 		if gen:
 			tasks.Task(gen)

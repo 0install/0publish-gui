@@ -98,18 +98,11 @@ def run_gpg(default_key, *arguments):
 	if os.spawnvp(os.P_WAIT, 'gpg', arguments):
 		raise SafeException("Command '%s' failed" % arguments)
 
-def sign_unsigned(path, data, key):
+def sign_unsigned(path, data, key, callback):
 	os.rename(write_tmp(path, data), path)
+	if callback: callback()
 
-def sign_plain(path, data, key):
-	tmp = write_tmp(path, data)
-	try:
-		run_gpg(key, '--clearsign', tmp)
-	finally:
-		os.unlink(tmp)
-	os.rename(tmp + '.asc', path)
-
-def sign_xml(path, data, key):
+def sign_xml(path, data, key, callback):
 	import main
 	wTree = g.glade.XML(main.gladefile, 'get_passphrase')
 	box = wTree.get_widget('get_passphrase')
@@ -176,6 +169,8 @@ def sign_xml(path, data, key):
 	os.unlink(tmp)
 	sig = "<!-- Base64 Signature\n" + encoded + "\n-->\n"
 	os.rename(write_tmp(path, data + sig), path)
+
+	if callback: callback()
 
 def export_key(dir, fingerprint):
 	assert fingerprint is not None
