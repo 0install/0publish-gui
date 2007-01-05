@@ -91,7 +91,7 @@
       </child>
 
       <child>
-	<widget class="GtkNotebook" id="notebook1">
+	<widget class="GtkNotebook" id="notebook">
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 	  <property name="show_tabs">True</property>
@@ -709,7 +709,7 @@
 		  <property name="spacing">4</property>
 
 		  <child>
-		    <widget class="GtkButton" id="button3">
+		    <widget class="GtkButton" id="add_version">
 		      <property name="visible">True</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
@@ -721,7 +721,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button4">
+		    <widget class="GtkButton" id="add_group">
 		      <property name="visible">True</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
@@ -733,7 +733,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button15">
+		    <widget class="GtkButton" id="add_requires">
 		      <property name="visible">True</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
@@ -745,7 +745,19 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button7">
+		    <widget class="GtkButton" id="edit_properties">
+		      <property name="visible">True</property>
+		      <property name="can_default">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="label">gtk-properties</property>
+		      <property name="use_stock">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkButton" id="remove">
 		      <property name="visible">True</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
@@ -1204,9 +1216,9 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 
 <widget class="GtkDialog" id="version">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">Version 0.1</property>
+  <property name="title" translatable="yes">Version properties</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="window_position">GTK_WIN_POS_CENTER</property>
   <property name="modal">False</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
@@ -1235,11 +1247,24 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 	      <property name="visible">True</property>
 	      <property name="can_default">True</property>
 	      <property name="can_focus">True</property>
-	      <property name="label">gtk-close</property>
+	      <property name="label">gtk-cancel</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
-	      <property name="response_id">-7</property>
+	      <property name="response_id">-6</property>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="button24">
+	      <property name="visible">True</property>
+	      <property name="can_default">True</property>
+	      <property name="can_focus">True</property>
+	      <property name="label">gtk-ok</property>
+	      <property name="use_stock">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <property name="response_id">-5</property>
 	    </widget>
 	  </child>
 	</widget>
@@ -1263,6 +1288,7 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox5">
+	      <property name="border_width">8</property>
 	      <property name="visible">True</property>
 	      <property name="homogeneous">False</property>
 	      <property name="spacing">0</property>
@@ -1271,7 +1297,7 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 		<widget class="GtkTable" id="table1">
 		  <property name="border_width">8</property>
 		  <property name="visible">True</property>
-		  <property name="n_rows">3</property>
+		  <property name="n_rows">4</property>
 		  <property name="n_columns">4</property>
 		  <property name="homogeneous">False</property>
 		  <property name="row_spacing">4</property>
@@ -1334,7 +1360,7 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 		  </child>
 
 		  <child>
-		    <widget class="GtkEntry" id="entry2">
+		    <widget class="GtkEntry" id="version_number">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">Allowed modifiers: &quot;-pre&quot;, &quot;-rc&quot;, &quot;-&quot;, &quot;-post&quot;. Eg: 1.2-rc3</property>
 		      <property name="can_focus">True</property>
@@ -1356,28 +1382,80 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="released">
+		    <widget class="GtkEntry" id="released">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">2007-01-01</property>
-		      <property name="use_underline">True</property>
-		      <property name="relief">GTK_RELIEF_NORMAL</property>
-		      <property name="focus_on_click">True</property>
+		      <property name="editable">True</property>
+		      <property name="visibility">True</property>
+		      <property name="max_length">0</property>
+		      <property name="text" translatable="yes"></property>
+		      <property name="has_frame">True</property>
+		      <property name="invisible_char">*</property>
+		      <property name="activates_default">False</property>
 		    </widget>
 		    <packing>
 		      <property name="left_attach">3</property>
 		      <property name="right_attach">4</property>
 		      <property name="top_attach">0</property>
 		      <property name="bottom_attach">1</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label34">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">ID</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">1</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label31">
+		    <widget class="GtkComboBox" id="stability">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">CPU</property>
+		      <property name="items" translatable="yes">(inherit)
+Stable
+Testing
+Developer
+Buggy
+Insecure</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label29">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Stability</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1395,49 +1473,10 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 		    <packing>
 		      <property name="left_attach">2</property>
 		      <property name="right_attach">3</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">2</property>
+		      <property name="bottom_attach">3</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkComboBoxEntry" id="comboboxentry2">
-		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">i386
-i486
-i586
-i686</property>
-		      <property name="add_tearoffs">False</property>
-		      <property name="has_frame">True</property>
-		      <property name="focus_on_click">True</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">3</property>
-		      <property name="right_attach">4</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options">fill</property>
-		    </packing>
-		  </child>
-
-		  <child>
-		    <widget class="GtkComboBoxEntry" id="comboboxentry1">
-		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">Linux</property>
-		      <property name="add_tearoffs">False</property>
-		      <property name="has_frame">True</property>
-		      <property name="focus_on_click">True</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">1</property>
-		      <property name="right_attach">2</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
-		      <property name="x_options">fill</property>
-		      <property name="y_options">fill</property>
 		    </packing>
 		  </child>
 
@@ -1462,17 +1501,36 @@ i686</property>
 		    <packing>
 		      <property name="left_attach">0</property>
 		      <property name="right_attach">1</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label29">
+		    <widget class="GtkComboBoxEntry" id="os">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Stability</property>
+		      <property name="items" translatable="yes">*
+Linux</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="has_frame">True</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="cpu">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">CPU</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
 		      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1488,34 +1546,93 @@ i686</property>
 		      <property name="angle">0</property>
 		    </widget>
 		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">2</property>
-		      <property name="bottom_attach">3</property>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
 		      <property name="x_options">fill</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBox" id="combobox2">
+		    <widget class="GtkComboBoxEntry" id="cpu">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes">(inherit)
-Stable
-Testing
-Developer
-Buggy
-Insecure</property>
+		      <property name="items" translatable="yes">*
+i386
+i486
+i586
+i686</property>
 		      <property name="add_tearoffs">False</property>
+		      <property name="has_frame">True</property>
 		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">3</property>
+		      <property name="bottom_attach">4</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkFrame" id="frame12">
+		      <property name="visible">True</property>
+		      <property name="label_xalign">0</property>
+		      <property name="label_yalign">0.5</property>
+		      <property name="shadow_type">GTK_SHADOW_IN</property>
+
+		      <child>
+			<widget class="GtkLabel" id="id_label">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">-</property>
+			  <property name="use_underline">False</property>
+			  <property name="use_markup">False</property>
+			  <property name="justify">GTK_JUSTIFY_CENTER</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">2</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+		      </child>
+		    </widget>
+		    <packing>
 		      <property name="left_attach">1</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options">fill</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkCheckButton" id="inherit_arch">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">Inherit architecture</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <property name="active">True</property>
+		      <property name="inconsistent">False</property>
+		      <property name="draw_indicator">True</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
 		      <property name="right_attach">2</property>
 		      <property name="top_attach">2</property>
 		      <property name="bottom_attach">3</property>
 		      <property name="x_options">fill</property>
-		      <property name="y_options">fill</property>
+		      <property name="y_options"></property>
 		    </packing>
 		  </child>
 		</widget>
@@ -1536,7 +1653,7 @@ Insecure</property>
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		  <child>
-		    <widget class="GtkTreeView" id="treeview5">
+		    <widget class="GtkTreeView" id="archives">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="headers_visible">True</property>
@@ -1550,7 +1667,7 @@ Insecure</property>
 		  </child>
 		</widget>
 		<packing>
-		  <property name="padding">0</property>
+		  <property name="padding">4</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
 		</packing>
@@ -1624,6 +1741,7 @@ Insecure</property>
 
 	  <child>
 	    <widget class="GtkVBox" id="vbox6">
+	      <property name="border_width">8</property>
 	      <property name="visible">True</property>
 	      <property name="homogeneous">False</property>
 	      <property name="spacing">0</property>
@@ -1653,7 +1771,7 @@ Insecure</property>
 		  </child>
 		</widget>
 		<packing>
-		  <property name="padding">0</property>
+		  <property name="padding">4</property>
 		  <property name="expand">True</property>
 		  <property name="fill">True</property>
 		</packing>

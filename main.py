@@ -1,6 +1,6 @@
 from xml.dom import Node, minidom
 
-import rox, os, pango, sys, textwrap, traceback, subprocess
+import rox, os, pango, sys, textwrap, traceback, subprocess, time
 from rox import g, tasks
 import gtk.glade
 
@@ -84,13 +84,15 @@ class FeedEditor:
 		for k in keys:
 			key_model.append(k)
 
-		self.impl_model = g.TreeStore(str)
+		self.impl_model = g.TreeStore(str, object)
 		impl_tree = self.wTree.get_widget('impl_tree')
 		impl_tree.set_model(self.impl_model)
 		text = g.CellRendererText()
 		column = g.TreeViewColumn('', text)
 		column.add_attribute(text, 'text', 0)
 		impl_tree.append_column(column)
+
+		impl_tree.get_selection().set_mode(g.SELECTION_BROWSE)
 
 		if os.path.exists(self.pathname):
 			data, _, self.key = signing.check_signature(self.pathname)
@@ -108,6 +110,12 @@ class FeedEditor:
 		#for title in ['Attribute', 'Value']:
 		#	column = g.TreeViewColumn(title, text)
 		#	attributes.append_column(column)
+	
+		self.wTree.get_widget('add_version').connect('clicked', lambda b: self.add_version())
+		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_version())
+		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_version(path))
+
+		self.wTree.get_widget('notebook').next_page()
 	
 	def update_fields(self):
 		root = self.doc.documentElement
@@ -146,6 +154,11 @@ class FeedEditor:
 		else:
 			key_menu.set_active(0)
 
+		self.update_version_model()
+	
+	def update_version_model(self):
+		self.impl_model.clear()
+
 		def add_impls(elem, iter, attrs):
 			"""Add all groups, implementations and requirements in elem"""
 
@@ -154,7 +167,7 @@ class FeedEditor:
 
 				if x.localName == 'requires':
 					req_iface = x.getAttribute('interface')
-					new = self.impl_model.append(iter, ['Requires %s' % req_iface])
+					new = self.impl_model.append(iter, ['Requires %s' % req_iface, x])
 
 				if x.localName not in ('implementation', 'group'): continue
 
@@ -166,13 +179,13 @@ class FeedEditor:
 
 				if x.localName == 'implementation':
 					version = new_attrs.get('version', '(missing version number)')
-					new = self.impl_model.append(iter, ['Version %s' % version])
+					new = self.impl_model.append(iter, ['Version %s' % version, x])
 				elif x.localName == 'group':
-					new = self.impl_model.append(iter, ['Group'])
+					new = self.impl_model.append(iter, ['Group', x])
 					add_impls(x, new, new_attrs)
 					
 		iter = None
-		add_impls(root, iter, attrs = {})
+		add_impls(self.doc.documentElement, iter, attrs = {})
 		self.wTree.get_widget('impl_tree').expand_all()
 
 	def test(self):
@@ -252,3 +265,96 @@ class FeedEditor:
 		# May require interaction to get the pass-phrase, so run in the background...
 		if gen:
 			tasks.Task(gen)
+	
+	def add_version(self):
+		def set_data(button):
+			cal = g.Calendar
+
+		widgets = gtk.glade.XML(gladefile, 'version')
+
+		widgets.get_widget('version_number').set_text('1.0')
+		os = widgets.get_widget('cpu')
+		os.set_active(0)
+		cpu = widgets.get_widget('os')
+		cpu.set_active(0)
+		widgets.get_widget('stability').set_active(0)
+
+		released = widgets.get_widget('released')
+		released.set_text(time.strftime('%Y-%m-%d'))
+
+		methods = g.ListStore(str)
+		list_view = widgets.get_widget('archives')
+		list_view.set_model(methods)
+
+		list_view.append_column(g.TreeViewColumn('URL'))
+
+		inherit_arch = widgets.get_widget('inherit_arch')
+		def shade_os_cpu():
+			s = not inherit_arch.get_active()
+			os.set_sensitive(s)
+			cpu.set_sensitive(s)
+		shade_os_cpu()
+		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
+
+		def resp(dialog, r):
+			if r == g.RESPONSE_OK:
+				element = create_element(self.doc.documentElement, 'implementation')
+				self.update_impl(element, widgets)
+				self.update_version_model()
+			dialog.destroy()
+
+		dialog = widgets.get_widget('version')
+		dialog.connect('response', resp)
+	
+	def edit_version(self, path = None):
+		if path is None:
+			tree = self.wTree.get_widget('impl_tree')
+			sel = tree.get_selection()
+			model, iter = sel.get_selected()
+			if not iter:
+				rox.alert('Select something first!')
+				return
+			element = model[iter][1]
+		else:
+			element = self.impl_model[path][1]
+
+		widgets = gtk.glade.XML(gladefile, 'version')
+		
+		widgets.get_widget('version_number').set_text(element.getAttribute('version'))
+		widgets.get_widget('released').set_text(element.getAttribute('released'))
+		widgets.get_widget('id_label').set_text(element.getAttribute('id'))
+
+		def resp(dialog, r):
+			if r == g.RESPONSE_OK:
+				self.update_impl(element, widgets)
+				self.update_version_model()
+			dialog.destroy()
+
+		dialog = widgets.get_widget('version')
+		dialog.connect('response', resp)
+	
+	def update_impl(self, element, widgets):
+		version = widgets.get_widget('version_number').get_text()
+		inherit_arch = widgets.get_widget('inherit_arch')
+
+		def get_combo(name):
+			widget = widgets.get_widget(name)
+			i = widget.get_active()
+			m = widget.get_model()
+			return m[i][0]
+
+		cpu = get_combo('cpu')
+		os = get_combo('os')
+		stability = get_combo('stability')
+
+		if inherit_arch.get_active():
+			arch = None
+		else:
+			arch = os + '-' + cpu
+
+		for name, value in [('version', version),
+			            ('arch', arch)]:
+			if value:
+				element.setAttribute(name, value)
+			elif element.hasAttribute(name):
+				element.removeAttribute(name)

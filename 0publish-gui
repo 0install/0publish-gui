@@ -12,6 +12,7 @@ if args:
 	for file in args:
 		editor = FeedEditor(file)
 		editor.window.show()
+		#editor.add_version()
 else:
 	editor = choose_feed()
 	editor.window.show()
