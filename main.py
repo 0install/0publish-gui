@@ -84,6 +84,14 @@ class FeedEditor:
 		for k in keys:
 			key_model.append(k)
 
+		self.impl_model = g.TreeStore(str)
+		impl_tree = self.wTree.get_widget('impl_tree')
+		impl_tree.set_model(self.impl_model)
+		text = g.CellRendererText()
+		column = g.TreeViewColumn('', text)
+		column.add_attribute(text, 'text', 0)
+		impl_tree.append_column(column)
+
 		if os.path.exists(self.pathname):
 			data, _, self.key = signing.check_signature(self.pathname)
 			self.doc = minidom.parseString(data)
@@ -92,10 +100,6 @@ class FeedEditor:
 			self.doc = minidom.parseString(emptyFeed)
 			self.key = None
 			key_menu.set_active(0)
-
-		impl_model = g.TreeStore(str)
-		impl_tree = self.wTree.get_widget('impl_tree')
-		impl_tree.set_model(impl_model)
 
 		#self.attr_model = g.ListStore(str, str)
 		#attributes = self.wTree.get_widget('attributes')
@@ -141,6 +145,35 @@ class FeedEditor:
 			key_menu.set_active(i)
 		else:
 			key_menu.set_active(0)
+
+		def add_impls(elem, iter, attrs):
+			"""Add all groups, implementations and requirements in elem"""
+
+			for x in child_elements(elem):
+				if x.namespaceURI != XMLNS_INTERFACE: continue
+
+				if x.localName == 'requires':
+					req_iface = x.getAttribute('interface')
+					new = self.impl_model.append(iter, ['Requires %s' % req_iface])
+
+				if x.localName not in ('implementation', 'group'): continue
+
+				new_attrs = attrs.copy()
+				attributes = x.attributes
+				for i in range(attributes.length):
+					a = attributes.item(i)
+					new_attrs[str(a.name)] = a.value
+
+				if x.localName == 'implementation':
+					version = new_attrs.get('version', '(missing version number)')
+					new = self.impl_model.append(iter, ['Version %s' % version])
+				elif x.localName == 'group':
+					new = self.impl_model.append(iter, ['Group'])
+					add_impls(x, new, new_attrs)
+					
+		iter = None
+		add_impls(root, iter, attrs = {})
+		self.wTree.get_widget('impl_tree').expand_all()
 
 	def test(self):
 		child = os.fork()

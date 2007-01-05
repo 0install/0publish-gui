@@ -68,6 +68,12 @@ def attrs_match(elem, attrs):
 		if elem.getAttribute(x) != attrs[x]: return False
 	return True
 
+def child_elements(parent):
+	"""Yield all direct child elements."""
+	for x in parent.childNodes:
+		if x.nodeType == Node.ELEMENT_NODE:
+			yield x
+
 def children(parent, localName, uri = XMLNS_INTERFACE, attrs = {}):
 	"""Yield all direct child elements with this name and attributes."""
 	for x in parent.childNodes:

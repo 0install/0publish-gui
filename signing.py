@@ -65,7 +65,7 @@ def check_signature(path):
 		data_stream.close()
 	elif data.startswith('-----BEGIN'):
 		data_stream, sigs = gpg.check_stream(file(path))
-		sign_fn = sign_plain
+		sign_fn = sign_xml		# Don't support saving as plain
 		data = data_stream.read()
 	else:
 		return data, sign_unsigned, None
