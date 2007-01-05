@@ -1,7 +1,7 @@
 from xml.dom import Node, minidom
 
 import rox, os, pango, sys, textwrap
-from rox import g
+from rox import g, tasks
 import gtk.glade
 
 import signing
@@ -184,4 +184,8 @@ class FeedEditor:
 		else:
 			sign = signing.sign_unsigned
 		data = self.doc.toxml() + '\n'
-		sign(self.pathname, data, self.key)
+
+		gen = sign(self.pathname, data, self.key)
+		# May require interaction to get the pass-phrase, so run in the background...
+		if gen:
+			tasks.Task(gen)

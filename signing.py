@@ -1,7 +1,43 @@
 from zeroinstall import SafeException
 from zeroinstall.injector import gpg
-import tempfile, os, base64, sys, shutil
+import tempfile, os, base64, sys, shutil, signal
 import subprocess
+from rox import tasks, g
+import gobject
+
+class LineBuffer:
+	def __init__(self):
+		self.data = ''
+	
+	def add(self, new):
+		assert new
+		self.data += new
+	
+	def __iter__(self):
+		while '\n' in self.data:
+			command, self.data = self.data.split('\n', 1)
+			yield command
+
+# (version in ROX-Lib < 2.0.4 is buggy; missing IO_HUP)
+class InputBlocker(tasks.Blocker):
+	"""Triggers when os.read(stream) would not block."""
+	_tag = None
+	_stream = None
+	def __init__(self, stream):
+		tasks.Blocker.__init__(self)
+		self._stream = stream
+	
+	def add_task(self, task):
+		tasks.Blocker.add_task(self, task)
+		if self._tag is None:
+			self._tag = gobject.io_add_watch(self._stream, gobject.IO_IN | gobject.IO_HUP,
+				lambda src, cond: self.trigger())
+	
+	def remove_task(self, task):
+		tasks.Blocker.remove_task(self, task)
+		if not self._rox_lib_tasks:
+			gobject.source_remove(self._tag)
+			self._tag = None
 
 def get_secret_keys():
 	child = subprocess.Popen(('gpg', '--list-secret-keys', '--with-colons', '--with-fingerprint'),
@@ -74,11 +110,67 @@ def sign_plain(path, data, key):
 	os.rename(tmp + '.asc', path)
 
 def sign_xml(path, data, key):
-	tmp = write_tmp(path, data)
+	import main
+	wTree = g.glade.XML(main.gladefile, 'get_passphrase')
+	box = wTree.get_widget('get_passphrase')
+	box.set_default_response(g.RESPONSE_OK)
+	entry = wTree.get_widget('passphrase')
+
+	buffer = LineBuffer()
+
+	killed = False
+	error = False
+	tmp = None
+	r, w = os.pipe()
 	try:
-		run_gpg(key, '--detach-sign', tmp)
-	finally:
-		os.unlink(tmp)
+		def setup_child():
+			os.close(r)
+
+		tmp = write_tmp(path, data)
+
+		child = subprocess.Popen(('gpg', '--default-key', key,
+					  '--detach-sign', '--status-fd', str(w),
+					  '--command-fd', '0',
+					  '-q',
+					  tmp),
+					 preexec_fn = setup_child,
+					 stdin = subprocess.PIPE)
+
+		os.close(w)
+		w = None
+		while True:
+			input = InputBlocker(r)
+			yield input
+			msg = os.read(r, 100)
+			if not msg: break
+			buffer.add(msg)
+			for command in buffer:
+				if command.startswith('[GNUPG:] NEED_PASSPHRASE '):
+					entry.set_text('')
+					box.present()
+					resp = box.run()
+					box.hide()
+					if resp == g.RESPONSE_OK:
+						child.stdin.write(entry.get_text() + '\n')
+						child.stdin.flush()
+					else:
+						os.kill(child.pid, signal.SIGTERM)
+						killed = True
+
+		status = child.wait()
+		if status:
+			raise Exception("GPG failed with exit code %d" % status)
+	except:
+		# No generator finally blocks in Python 2.4...
+		error = True
+
+	if r is not None: os.close(r)
+	if w is not None: os.close(w)
+	if tmp is not None: os.unlink(tmp)
+
+	if killed: return
+	if error: raise
+
 	tmp += '.sig'
 	encoded = base64.encodestring(file(tmp).read())
 	os.unlink(tmp)
