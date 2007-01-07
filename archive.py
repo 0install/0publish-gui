@@ -142,7 +142,6 @@ class AddArchiveBox:
 		archive_element.setAttribute('size', str(size))
 		archive_element.setAttribute('href', url)
 		if extract: archive_element.setAttribute('extract', extract)
-		impl_element.appendChild(archive_element)
 
 		self.feed_editor.update_version_model()
 

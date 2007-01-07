@@ -19,7 +19,7 @@ def indent_of(x):
 	"""If x's previous sibling is whitespace, return its length. Otherwise, return 0."""
 	indent = x.previousSibling
 	if indent and indent.nodeType == Node.TEXT_NODE:
-		spaces = data(indent).split('\n')[-1]
+		spaces = indent.nodeValue.split('\n')[-1]
 		if spaces.strip() == '':
 			return len(spaces)
 	return 0
@@ -42,7 +42,11 @@ def create_element(parent, name, uri = XMLNS_INTERFACE, before = []):
 		if last_element:
 			parent.insertBefore(new, last_element.nextSibling)
 		else:
+			had_children = bool(list(child_elements(parent)))
 			parent.appendChild(new)
+			if not had_children:
+				final_indent = '\n' + (' ' * indent_of(parent))
+				parent.appendChild(parent.ownerDocument.createTextNode(final_indent))
 	if indent:
 		indent_text = parent.ownerDocument.createTextNode('\n' + (' ' * indent))
 		parent.insertBefore(indent_text, new)
