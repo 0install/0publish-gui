@@ -7,7 +7,7 @@ import gtk.glade
 import main
 from xmltools import *
 
-from zeroinstall.zerostore import unpack, Stores
+from zeroinstall.zerostore import unpack, Stores, NotStored
 
 # Zero Install implementation cache
 stores = Stores()
@@ -86,9 +86,12 @@ class ImplementationProperties:
 			dialog.destroy()
 
 		if id:
-			cached_impl = stores.lookup(id)
-			if cached_impl:
-				# Find executables
+			# Find possible main settings, if possible
+			try:
+				cached_impl = stores.lookup(id)
+			except NotStored, ex:
+				pass
+			else:
 				i = 0
 				for (dirpath, dirnames, filenames) in os.walk(cached_impl):
 					for file in filenames:

@@ -22,6 +22,8 @@ def get_combo_value(combo):
 	m = combo.get_model()
 	return m[i][0]
 
+watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
+
 class AddArchiveBox:
 	def __init__(self, feed_editor, local_archive = None):
 		self.feed_editor = feed_editor
@@ -52,12 +54,17 @@ class AddArchiveBox:
 			self.tmpdir = tempfile.mkdtemp('-0publish-gui')
 			url = widgets.get_widget('archive_url').get_text()
 			try:
-				unpack.unpack_archive(url, file(path), self.tmpdir)
+				dialog = widgets.get_widget('add_archive')
+				dialog.window.set_cursor(watch)
+				gtk.gdk.flush()
+				try:
+					unpack.unpack_archive(url, file(path), self.tmpdir)
+				finally:
+					dialog.window.set_cursor(None)
 			except:
 				chooser.unselect_filename(path)
 				self.destroy_tmp()
 				raise
-			print self.tmpdir
 			iter = model.append(None, ['Everything'])
 			items = os.listdir(self.tmpdir)
 			for f in items:
