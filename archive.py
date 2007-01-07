@@ -15,7 +15,7 @@ RESPONSE_SAVE = 0
 RESPONSE_SAVE_AND_TEST = 1
 
 dotted_ints = '[0-9]+(.[0-9]+)*'
-version_regexp = '(%s)(-(pre|rc|post|)%s)*' % (dotted_ints, dotted_ints)
+version_regexp = '[^a-zA-Z0-9](%s)(-(pre|rc|post|)%s)*' % (dotted_ints, dotted_ints)
 
 def get_combo_value(combo):
 	i = combo.get_active()
@@ -111,7 +111,6 @@ class AddArchiveBox:
 	
 	def destroy_tmp(self):
 		if self.tmpdir:
-			print "Del", self.tmpdir
 			shutil.rmtree(self.tmpdir)
 			self.tmpdir = None
 
@@ -131,7 +130,7 @@ class AddArchiveBox:
 			leaf = url.split('/')[-1]
 			version = None
 			for m in re.finditer(version_regexp, leaf):
-				match = m.group()
+				match = m.group()[1:]
 				if version is None or len(best) < len(match):
 					version = match
 
