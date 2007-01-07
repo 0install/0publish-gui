@@ -1674,7 +1674,7 @@ Insecure</property>
 		  <property name="above_child">False</property>
 
 		  <child>
-		    <widget class="GtkComboBoxEntry" id="comboboxentry1">
+		    <widget class="GtkComboBoxEntry" id="main_binary">
 		      <property name="visible">True</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="has_frame">True</property>

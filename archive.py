@@ -17,6 +17,11 @@ RESPONSE_SAVE_AND_TEST = 1
 dotted_ints = '[0-9]+(.[0-9]+)*'
 version_regexp = '(%s)(-(pre|rc|post|)%s)*' % (dotted_ints, dotted_ints)
 
+def get_combo_value(combo):
+	i = combo.get_active()
+	m = combo.get_model()
+	return m[i][0]
+
 class AddArchiveBox:
 	def __init__(self, feed_editor, local_archive = None):
 		self.feed_editor = feed_editor
@@ -82,7 +87,7 @@ class AddArchiveBox:
 				local_archive = widgets.get_widget('local_archive').get_filename()
 				if not local_archive:
 					raise Exception('Please select a local file')
-				mime_type = main.get_combo_value(widgets.get_widget('mime_type'))
+				mime_type = get_combo_value(widgets.get_widget('mime_type'))
 				if selection.iter_is_selected(model.get_iter_root()):
 					root = self.tmpdir
 					extract = None

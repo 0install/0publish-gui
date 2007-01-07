@@ -6,6 +6,7 @@ import gtk.glade
 
 import signing
 import archive
+from implementation import ImplementationProperties
 from xmltools import *
 
 from zeroinstall.zerostore import unpack
@@ -40,11 +41,6 @@ def choose_feed():
 	path = chooser.get_filename()
 	chooser.destroy()
 	return FeedEditor(path)
-
-def get_combo_value(combo):
-	i = combo.get_active()
-	m = combo.get_model()
-	return m[i][0]
 
 
 emptyFeed = """<?xml version='1.0'?>
@@ -130,6 +126,21 @@ class FeedEditor(loading.XDSLoader):
 		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_version(path))
 
 		self.wTree.get_widget('notebook').next_page()
+
+	def add_version(self):
+		ImplementationProperties(self)
+
+	def edit_version(self, path = None, element = None):
+		assert not (path and element)
+
+		if element:
+			pass
+		elif path is None:
+			element = self.get_selected()
+		else:
+			element = self.impl_model[path][1]
+
+		ImplementationProperties(self, element)
 	
 	def update_fields(self):
 		root = self.doc.documentElement
@@ -299,45 +310,6 @@ class FeedEditor(loading.XDSLoader):
 	def xds_load_from_file(self, path):
 		archive.AddArchiveBox(self, local_archive = path)
 	
-	def init_attributes(self, widgets):
-		attributes = g.ListStore(str, str)
-		attr_view = widgets.get_widget('attributes')
-		attr_view.set_model(attributes)
-
-		attr_view.append_column(g.TreeViewColumn('Name'))
-		attr_view.append_column(g.TreeViewColumn('Value'))
-
-		inherit_arch = widgets.get_widget('inherit_arch')
-		def shade_os_cpu():
-			s = not inherit_arch.get_active()
-			widgets.get_widget('cpu').set_sensitive(s)
-			widgets.get_widget('os').set_sensitive(s)
-		shade_os_cpu()
-		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
-	
-	def add_version(self):
-		widgets = gtk.glade.XML(gladefile, 'version')
-
-		widgets.get_widget('version_number').set_text('1.0')
-		widgets.get_widget('cpu').set_active(0)
-		widgets.get_widget('os').set_active(0)
-		widgets.get_widget('stability').set_active(0)
-
-		released = widgets.get_widget('released')
-		released.set_text(time.strftime('%Y-%m-%d'))
-
-		self.init_attributes(widgets)
-
-		def resp(dialog, r):
-			if r == g.RESPONSE_OK:
-				element = create_element(self.doc.documentElement, 'implementation')
-				self.update_impl(element, widgets)
-				self.update_version_model()
-			dialog.destroy()
-
-		dialog = widgets.get_widget('version')
-		dialog.connect('response', resp)
-	
 	def remove_version(self, path = None):
 		elem = self.get_selected()
 		remove_element(elem)
@@ -350,70 +322,6 @@ class FeedEditor(loading.XDSLoader):
 		if not iter:
 			raise Exception('Select something first!')
 		return model[iter][1]
-
-	def edit_version(self, path = None, element = None):
-		assert not (path and element)
-
-		if element:
-			pass
-		elif path is None:
-			element = self.get_selected()
-		else:
-			element = self.impl_model[path][1]
-
-		widgets = gtk.glade.XML(gladefile, 'version')
-
-		self.init_attributes(widgets)
-		
-		widgets.get_widget('version_number').set_text(element.getAttribute('version'))
-		widgets.get_widget('released').set_text(element.getAttribute('released'))
-		widgets.get_widget('id_label').set_text(element.getAttribute('id'))
-
-		stability_menu = widgets.get_widget('stability')
-		stability = element.getAttribute('stability')
-		if stability:
-			i = 0
-			for row in stability_menu.get_model():
-				if row[0].lower() == stability:
-					stability_menu.set_active(i)
-					break
-				i += 1
-		else:
-			stability_menu.set_active(0)
-
-		def resp(dialog, r):
-			if r == g.RESPONSE_OK:
-				self.update_impl(element, widgets)
-				self.update_version_model()
-			dialog.destroy()
-
-		dialog = widgets.get_widget('version')
-		dialog.connect('response', resp)
-	
-	def update_impl(self, element, widgets):
-		version = widgets.get_widget('version_number').get_text()
-		inherit_arch = widgets.get_widget('inherit_arch')
-
-		def get_combo(name):
-			widget = widgets.get_widget(name)
-			return get_combo_value(widget)
-
-		cpu = get_combo('cpu')
-		os = get_combo('os')
-		stability = get_combo('stability').lower()
-
-		if inherit_arch.get_active():
-			arch = None
-		else:
-			arch = os + '-' + cpu
-
-		for name, value in [('version', version),
-			            ('arch', arch),
-			            ('stability', stability)]:
-			if value:
-				element.setAttribute(name, value)
-			elif element.hasAttribute(name):
-				element.removeAttribute(name)
 
 	def find_implementation(self, id):
 		def find_impl(parent):
