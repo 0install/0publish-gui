@@ -180,6 +180,8 @@ class FeedEditor(loading.XDSLoader):
 	
 	def update_version_model(self):
 		self.impl_model.clear()
+		impl_tree = self.wTree.get_widget('impl_tree')
+		to_expand = []
 
 		def add_impls(elem, iter, attrs):
 			"""Add all groups, implementations and requirements in elem"""
@@ -205,11 +207,13 @@ class FeedEditor(loading.XDSLoader):
 					self.add_archives(x, new)
 				elif x.localName == 'group':
 					new = self.impl_model.append(iter, ['Group', x])
+					to_expand.append(self.impl_model.get_path(new))
 					add_impls(x, new, new_attrs)
 					
-		iter = None
-		add_impls(self.doc.documentElement, iter, attrs = {})
-		self.wTree.get_widget('impl_tree').expand_all()
+		add_impls(self.doc.documentElement, None, attrs = {})
+
+		for path in to_expand:
+			impl_tree.expand_row(path, False)
 
 	def test(self):
 		child = os.fork()
