@@ -1,11 +1,14 @@
 from xml.dom import Node, minidom
 
-import rox, os, pango, sys, textwrap, traceback, subprocess, time
-from rox import g, tasks
+import rox, os, pango, sys, textwrap, traceback, subprocess, time, urlparse
+from rox import g, tasks, loading
 import gtk.glade
 
 import signing
+import archive
 from xmltools import *
+
+from zeroinstall.zerostore import unpack
 
 RESPONSE_SAVE = 0
 RESPONSE_SAVE_AND_TEST = 1
@@ -38,19 +41,28 @@ def choose_feed():
 	chooser.destroy()
 	return FeedEditor(path)
 
+def get_combo_value(combo):
+	i = combo.get_active()
+	m = combo.get_model()
+	return m[i][0]
+
+
 emptyFeed = """<?xml version='1.0'?>
 <interface xmlns="%s">
   <name>Name</name>
 </interface>
 """ % (XMLNS_INTERFACE)
 
-class FeedEditor:
+class FeedEditor(loading.XDSLoader):
 	def __init__(self, pathname):
+		loading.XDSLoader.__init__(self, None)
+
 		self.pathname = pathname
 
 		self.wTree = gtk.glade.XML(gladefile, 'main')
 		self.window = self.wTree.get_widget('main')
 		self.window.connect('destroy', rox.toplevel_unref)
+		self.xds_proxy_for(self.window)
 
 		help = gtk.glade.XML(gladefile, 'main_help')
 		help_box = help.get_widget('main_help')
@@ -111,8 +123,10 @@ class FeedEditor:
 		#	column = g.TreeViewColumn(title, text)
 		#	attributes.append_column(column)
 	
-		self.wTree.get_widget('add_version').connect('clicked', lambda b: self.add_version())
+		self.wTree.get_widget('add_implementation').connect('clicked', lambda b: self.add_version())
+		self.wTree.get_widget('add_archive').connect('clicked', lambda b: self.add_archive())
 		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_version())
+		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
 		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_version(path))
 
 		self.wTree.get_widget('notebook').next_page()
@@ -156,6 +170,14 @@ class FeedEditor:
 
 		self.update_version_model()
 	
+	def add_archives(self, impl_element, iter):
+		for child in child_elements(impl_element):
+			if child.namespaceURI != XMLNS_INTERFACE: continue
+			if child.localName == 'archive':
+				self.impl_model.append(iter, ['Archive ' + child.getAttribute('href'), child])
+			else:
+				self.impl_model.append(iter, ['<%s>' % child.localName, child])
+	
 	def update_version_model(self):
 		self.impl_model.clear()
 
@@ -180,6 +202,7 @@ class FeedEditor:
 				if x.localName == 'implementation':
 					version = new_attrs.get('version', '(missing version number)')
 					new = self.impl_model.append(iter, ['Version %s' % version, x])
+					self.add_archives(x, new)
 				elif x.localName == 'group':
 					new = self.impl_model.append(iter, ['Group', x])
 					add_impls(x, new, new_attrs)
@@ -265,11 +288,22 @@ class FeedEditor:
 		# May require interaction to get the pass-phrase, so run in the background...
 		if gen:
 			tasks.Task(gen)
+
+	def add_archive(self):
+		archive.AddArchiveBox(self)
+	
+	def xds_load_from_file(self, path):
+		archive.AddArchiveBox(self, local_archive = path)
+	
+	def init_attributes(self, widgets):
+		attributes = g.ListStore(str, str)
+		attr_view = widgets.get_widget('attributes')
+		attr_view.set_model(attributes)
+
+		attr_view.append_column(g.TreeViewColumn('Name'))
+		attr_view.append_column(g.TreeViewColumn('Value'))
 	
 	def add_version(self):
-		def set_data(button):
-			cal = g.Calendar
-
 		widgets = gtk.glade.XML(gladefile, 'version')
 
 		widgets.get_widget('version_number').set_text('1.0')
@@ -282,11 +316,7 @@ class FeedEditor:
 		released = widgets.get_widget('released')
 		released.set_text(time.strftime('%Y-%m-%d'))
 
-		methods = g.ListStore(str)
-		list_view = widgets.get_widget('archives')
-		list_view.set_model(methods)
-
-		list_view.append_column(g.TreeViewColumn('URL'))
+		self.init_attributes(widgets)
 
 		inherit_arch = widgets.get_widget('inherit_arch')
 		def shade_os_cpu():
@@ -306,19 +336,32 @@ class FeedEditor:
 		dialog = widgets.get_widget('version')
 		dialog.connect('response', resp)
 	
-	def edit_version(self, path = None):
-		if path is None:
-			tree = self.wTree.get_widget('impl_tree')
-			sel = tree.get_selection()
-			model, iter = sel.get_selected()
-			if not iter:
-				rox.alert('Select something first!')
-				return
-			element = model[iter][1]
+	def remove_version(self, path = None):
+		elem = self.get_selected()
+		remove_element(elem)
+		self.update_version_model()
+	
+	def get_selected(self):
+		tree = self.wTree.get_widget('impl_tree')
+		sel = tree.get_selection()
+		model, iter = sel.get_selected()
+		if not iter:
+			raise Exception('Select something first!')
+		return model[iter][1]
+
+	def edit_version(self, path = None, element = None):
+		assert not (path and element)
+
+		if element:
+			pass
+		elif path is None:
+			element = self.get_selected()
 		else:
 			element = self.impl_model[path][1]
 
 		widgets = gtk.glade.XML(gladefile, 'version')
+
+		self.init_attributes(widgets)
 		
 		widgets.get_widget('version_number').set_text(element.getAttribute('version'))
 		widgets.get_widget('released').set_text(element.getAttribute('released'))
@@ -339,9 +382,7 @@ class FeedEditor:
 
 		def get_combo(name):
 			widget = widgets.get_widget(name)
-			i = widget.get_active()
-			m = widget.get_model()
-			return m[i][0]
+			return get_combo_value(widget)
 
 		cpu = get_combo('cpu')
 		os = get_combo('os')
