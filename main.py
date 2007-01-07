@@ -302,29 +302,27 @@ class FeedEditor(loading.XDSLoader):
 
 		attr_view.append_column(g.TreeViewColumn('Name'))
 		attr_view.append_column(g.TreeViewColumn('Value'))
+
+		inherit_arch = widgets.get_widget('inherit_arch')
+		def shade_os_cpu():
+			s = not inherit_arch.get_active()
+			widgets.get_widget('cpu').set_sensitive(s)
+			widgets.get_widget('os').set_sensitive(s)
+		shade_os_cpu()
+		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
 	
 	def add_version(self):
 		widgets = gtk.glade.XML(gladefile, 'version')
 
 		widgets.get_widget('version_number').set_text('1.0')
-		os = widgets.get_widget('cpu')
-		os.set_active(0)
-		cpu = widgets.get_widget('os')
-		cpu.set_active(0)
+		widgets.get_widget('cpu').set_active(0)
+		widgets.get_widget('os').set_active(0)
 		widgets.get_widget('stability').set_active(0)
 
 		released = widgets.get_widget('released')
 		released.set_text(time.strftime('%Y-%m-%d'))
 
 		self.init_attributes(widgets)
-
-		inherit_arch = widgets.get_widget('inherit_arch')
-		def shade_os_cpu():
-			s = not inherit_arch.get_active()
-			os.set_sensitive(s)
-			cpu.set_sensitive(s)
-		shade_os_cpu()
-		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
 
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
@@ -367,6 +365,18 @@ class FeedEditor(loading.XDSLoader):
 		widgets.get_widget('released').set_text(element.getAttribute('released'))
 		widgets.get_widget('id_label').set_text(element.getAttribute('id'))
 
+		stability_menu = widgets.get_widget('stability')
+		stability = element.getAttribute('stability')
+		if stability:
+			i = 0
+			for row in stability_menu.get_model():
+				if row[0].lower() == stability:
+					stability_menu.set_active(i)
+					break
+				i += 1
+		else:
+			stability_menu.set_active(0)
+
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
 				self.update_impl(element, widgets)
@@ -386,7 +396,7 @@ class FeedEditor(loading.XDSLoader):
 
 		cpu = get_combo('cpu')
 		os = get_combo('os')
-		stability = get_combo('stability')
+		stability = get_combo('stability').lower()
 
 		if inherit_arch.get_active():
 			arch = None
@@ -394,7 +404,8 @@ class FeedEditor(loading.XDSLoader):
 			arch = os + '-' + cpu
 
 		for name, value in [('version', version),
-			            ('arch', arch)]:
+			            ('arch', arch),
+			            ('stability', stability)]:
 			if value:
 				element.setAttribute(name, value)
 			elif element.hasAttribute(name):
