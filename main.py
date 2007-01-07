@@ -121,6 +121,7 @@ class FeedEditor(loading.XDSLoader):
 	
 		self.wTree.get_widget('add_implementation').connect('clicked', lambda b: self.add_version())
 		self.wTree.get_widget('add_archive').connect('clicked', lambda b: self.add_archive())
+		self.wTree.get_widget('add_group').connect('clicked', lambda b: self.add_group())
 		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_version())
 		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
 		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_version(path))
@@ -129,6 +130,9 @@ class FeedEditor(loading.XDSLoader):
 
 	def add_version(self):
 		ImplementationProperties(self)
+
+	def add_group(self):
+		ImplementationProperties(self, is_group = True)
 
 	def edit_version(self, path = None, element = None):
 		assert not (path and element)

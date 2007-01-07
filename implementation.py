@@ -18,7 +18,7 @@ def get_combo_value(combo):
 	return m[i][0]
 
 class ImplementationProperties:
-	def __init__(self, feed_editor, element = None):
+	def __init__(self, feed_editor, element = None, is_group = False):
 		self.feed_editor = feed_editor
 		self.element = element
 
@@ -43,10 +43,14 @@ class ImplementationProperties:
 		main_model = main_menu.get_model()
 
 		if element:
-			id = element.getAttribute('id')
+			if element.localName == 'group':
+				is_group = True
+				id = None
+			else:
+				id = element.getAttribute('id')
+
 			widgets.get_widget('version_number').set_text(element.getAttribute('version'))
 			widgets.get_widget('released').set_text(element.getAttribute('released'))
-			widgets.get_widget('id_label').set_text(id)
 
 			main_binary = element.getAttribute('main')
 
@@ -65,19 +69,37 @@ class ImplementationProperties:
 			def ok():
 				self.update_impl(element, widgets)
 		else:
+			released = widgets.get_widget('released')
+
 			id = None
-			widgets.get_widget('version_number').set_text('1.0')
+			if is_group:
+				widgets.get_widget('version_number').set_text('')
+				released.set_text('')
+			else:
+				widgets.get_widget('version_number').set_text('1.0')
+				released.set_text(time.strftime('%Y-%m-%d'))
+
 			widgets.get_widget('cpu').set_active(0)
 			widgets.get_widget('os').set_active(0)
 			widgets.get_widget('stability').set_active(0)
 			main_binary = None
 
-			released = widgets.get_widget('released')
-			released.set_text(time.strftime('%Y-%m-%d'))
-
 			def ok():
-				element = create_element(self.feed_editor.doc.documentElement, 'implementation')
+				if is_group:
+					element_name = 'group'
+				else:
+					element_name = 'implementation'
+				element = create_element(self.feed_editor.doc.documentElement, element_name)
 				self.update_impl(element, widgets)
+
+		self.is_group = is_group
+
+		if is_group:
+			widgets.get_widget('id_label').set_text('(group)')
+		elif id:
+			widgets.get_widget('id_label').set_text(id)
+		else:
+			widgets.get_widget('-')
 
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
@@ -85,6 +107,16 @@ class ImplementationProperties:
 				self.feed_editor.update_version_model()
 			dialog.destroy()
 
+		if is_group and element:
+			# Find a cached implementation for getting main
+			for x in child_elements(element):
+				if x.localName == 'implementation' and x.namespaceURI == XMLNS_INTERFACE:
+					id = x.getAttribute('id')
+					try:
+						if id and stores.lookup(id):
+							break
+					except NotStored, ex:
+						pass
 		if id:
 			# Find possible main settings, if possible
 			try:
@@ -113,6 +145,7 @@ class ImplementationProperties:
 
 	def update_impl(self, element, widgets):
 		version = widgets.get_widget('version_number').get_text()
+		released = widgets.get_widget('released').get_text()
 		inherit_arch = widgets.get_widget('inherit_arch')
 
 		def get_combo(name):
@@ -138,6 +171,7 @@ class ImplementationProperties:
 		for name, value in [('version', version),
 			            ('arch', arch),
 			            ('main', main),
+			            ('released', released),
 			            ('stability', stability)]:
 			if value:
 				element.setAttribute(name, value)
