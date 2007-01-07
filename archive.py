@@ -117,23 +117,26 @@ class AddArchiveBox:
 			digest.update(line + '\n')
 		id = alg.getID(digest)
 
-		# TODO: Do we already have an implementation with this digest?
+		# Do we already have an implementation with this digest?
+		impl_element = self.feed_editor.find_implementation(id)
 
-		# No. Create a new implementation. Guess the details...
+		if impl_element is None:
+			# No. Create a new implementation. Guess the details...
 
-		leaf = url.split('/')[-1]
-		version = None
-		for m in re.finditer(version_regexp, leaf):
-			match = m.group()
-			print match
-			if version is None or len(best) < len(match):
-				version = match
-		print "Version = " + version
+			leaf = url.split('/')[-1]
+			version = None
+			for m in re.finditer(version_regexp, leaf):
+				match = m.group()
+				if version is None or len(best) < len(match):
+					version = match
 
-		impl_element = create_element(self.feed_editor.doc.documentElement, 'implementation')
-		impl_element.setAttribute('id', id)
-		impl_element.setAttribute('released', time.strftime('%Y-%m-%d'))
-		if version: impl_element.setAttribute('version', version)
+			impl_element = create_element(self.feed_editor.doc.documentElement, 'implementation')
+			impl_element.setAttribute('id', id)
+			impl_element.setAttribute('released', time.strftime('%Y-%m-%d'))
+			if version: impl_element.setAttribute('version', version)
+			created_impl = True
+		else:
+			created_impl = False
 
 		archive_element = create_element(impl_element, 'archive')
 		archive_element.setAttribute('size', str(size))
@@ -143,4 +146,5 @@ class AddArchiveBox:
 
 		self.feed_editor.update_version_model()
 
-		self.feed_editor.edit_version(element = impl_element)
+		if created_impl:
+			self.feed_editor.edit_version(element = impl_element)

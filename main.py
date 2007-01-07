@@ -399,3 +399,15 @@ class FeedEditor(loading.XDSLoader):
 				element.setAttribute(name, value)
 			elif element.hasAttribute(name):
 				element.removeAttribute(name)
+
+	def find_implementation(self, id):
+		def find_impl(parent):
+			for x in child_elements(parent):
+				if x.namespaceURI != XMLNS_INTERFACE: continue
+				if x.localName == 'group':
+					sub = find_impl(x)
+					if sub: return sub
+				elif x.localName == 'implementation':
+					if x.getAttribute('id') == id:
+						return x
+		return find_impl(self.doc.documentElement)
