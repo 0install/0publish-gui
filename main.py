@@ -49,6 +49,8 @@ emptyFeed = """<?xml version='1.0'?>
 </interface>
 """ % (XMLNS_INTERFACE)
 
+element_target = ('INTERNAL:FeedEditor/Element', gtk.TARGET_SAME_WIDGET, 0)
+
 class FeedEditor(loading.XDSLoader):
 	def __init__(self, pathname):
 		loading.XDSLoader.__init__(self, None)
@@ -100,6 +102,9 @@ class FeedEditor(loading.XDSLoader):
 		column.add_attribute(text, 'text', 0)
 		impl_tree.append_column(column)
 
+		impl_tree.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [element_target], gtk.gdk.ACTION_MOVE)
+		impl_tree.enable_model_drag_dest([element_target], gtk.gdk.ACTION_MOVE)
+
 		impl_tree.get_selection().set_mode(g.SELECTION_BROWSE)
 
 		if os.path.exists(self.pathname):
@@ -125,8 +130,67 @@ class FeedEditor(loading.XDSLoader):
 		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_version())
 		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
 		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_version(path))
+		impl_tree.connect('drag-data-received', self.tree_drag_data_received)
 
 		self.wTree.get_widget('notebook').next_page()
+
+	def tree_drag_data_received(self, treeview, context, x, y, selection, info, time):
+		if not selection: return
+		drop_info = treeview.get_dest_row_at_pos(x, y)
+		if drop_info:
+			model = treeview.get_model()
+			path, position = drop_info
+
+			src = self.get_selected()
+			dest = model[path][1]
+
+			def is_ancestor_or_self(a, b):
+				while b:
+					if b is a: return True
+					b = b.parentNode
+				return False
+
+			if is_ancestor_or_self(src, dest):
+				# Can't move an element into itself!
+				return
+
+			if position in (gtk.TREE_VIEW_DROP_BEFORE, gtk.TREE_VIEW_DROP_AFTER):
+				new_parent = dest.parentNode
+			else:
+				new_parent = dest
+
+			if src.namespaceURI != XMLNS_INTERFACE: return
+			if new_parent.namespaceURI != XMLNS_INTERFACE: return
+
+			if new_parent.localName in ('group', 'interface'):
+				if src.localName not in ('implementation', 'group'):
+					return
+			elif new_parent.localName == 'implementation':
+				if src.localName not in ['requires']:
+					return
+			else:
+				return
+
+			remove_element(src)
+
+			if position == gtk.TREE_VIEW_DROP_BEFORE:
+				insert_before(src, dest)
+			elif position == gtk.TREE_VIEW_DROP_AFTER:
+				next = dest.nextSibling
+				while next and not next.nodeType == Node.ELEMENT_NODE:
+					next = next.nextSibling
+				if next:
+					insert_before(src, next)
+				else:
+					insert_element(src, new_parent)
+			else:
+				insert_element(src, new_parent)
+			self.update_version_model()
+
+	def tree_drag_data_get(self, tv, context, data, info, time):
+		if info != element_target[2]:
+			return
+		print "get"
 
 	def add_version(self):
 		ImplementationProperties(self)

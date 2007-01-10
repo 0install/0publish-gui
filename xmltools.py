@@ -24,11 +24,20 @@ def indent_of(x):
 			return len(spaces)
 	return 0
 
-def create_element(parent, name, uri = XMLNS_INTERFACE, before = []):
-	"""Create a new child element with the given name.
-	Add it as far down the list of children as possible, but before
-	any element in the 'before' set. Indent it sensibly."""
-	new = parent.ownerDocument.createElementNS(uri, name)
+def insert_before(new, next):
+	indent_depth = indent_of(next)
+	new_parent = next.parentNode
+
+	prev = next.previousSibling
+	if prev and prev.nodeType == Node.TEXT_NODE:
+		next = prev
+
+	new_parent.insertBefore(new, next)
+	if indent_depth:
+		text = new_parent.ownerDocument.createTextNode('\n' + (' ' * indent_depth))
+		new_parent.insertBefore(text, new)
+
+def insert_element(new, parent, before = []):
 	indent = indent_of(parent) + 2	# Default indent
 	last_element = None
 	for x in parent.childNodes:
@@ -50,13 +59,20 @@ def create_element(parent, name, uri = XMLNS_INTERFACE, before = []):
 	if indent:
 		indent_text = parent.ownerDocument.createTextNode('\n' + (' ' * indent))
 		parent.insertBefore(indent_text, new)
+
+def create_element(parent, name, uri = XMLNS_INTERFACE, before = []):
+	"""Create a new child element with the given name.
+	Add it as far down the list of children as possible, but before
+	any element in the 'before' set. Indent it sensibly."""
+	new = parent.ownerDocument.createElementNS(uri, name)
+	insert_element(new, parent, before)
 	return new
 
 def remove_element(elem):
 	"""Remove 'elem' and any whitespace before it."""
 	parent = elem.parentNode
 	prev = elem.previousSibling
-	if prev.nodeType == Node.TEXT_NODE:
+	if prev and prev.nodeType == Node.TEXT_NODE:
 		if prev.nodeValue.strip() == '':
 			parent.removeChild(prev)
 	parent.removeChild(elem)
