@@ -353,7 +353,8 @@ class FeedEditor(loading.XDSLoader):
 					new_attrs[str(a.name)] = a.value
 
 				if x.localName == 'implementation':
-					version = new_attrs.get('version', '(missing version number)')
+					version = new_attrs.get('version', '(missing version number)') + \
+						  (new_attrs.get('version-modifier') or '')
 					new = self.impl_model.append(iter, ['Version %s' % version, x])
 					self.add_archives(x, new)
 				elif x.localName == 'group':

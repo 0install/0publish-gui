@@ -7,6 +7,7 @@ import gtk.glade
 import main
 from xmltools import *
 
+from zeroinstall.injector import model
 from zeroinstall.zerostore import unpack, NotStored
 
 def get_combo_value(combo):
@@ -44,7 +45,9 @@ class ImplementationProperties:
 			else:
 				id = element.getAttribute('id')
 
-			widgets.get_widget('version_number').set_text(element.getAttribute('version'))
+			version = element.getAttribute('version') + \
+				  (element.getAttribute('version-modifier') or '')
+			widgets.get_widget('version_number').set_text(version)
 			widgets.get_widget('released').set_text(element.getAttribute('released'))
 
 			main_binary = element.getAttribute('main')
@@ -191,7 +194,15 @@ class ImplementationProperties:
 			else:
 				raise Exception('Local IDs must start with "." or "/"')
 
+		version_modifier = None
+		if version:
+			model.parse_version(version)
+			if '-' in version:
+				version, version_modifier = version.split('-', 1)
+				version_modifier = '-' + version_modifier
+
 		for name, value in [('version', version),
+			            ('version-modifier', version_modifier),
 			            ('arch', arch),
 			            ('main', main),
 			            ('released', released),
