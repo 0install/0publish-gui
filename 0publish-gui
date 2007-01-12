@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 import rox, os, sys
 from rox import g
+
+if sys.version_info < (2, 4):
+	raise Exception('0publish-gui requires Python >= 2.4. You have %s' %
+		'.'.join(map(str, sys.version_info)))
+
 import gtk.glade
 from main import FeedEditor, choose_feed
 
