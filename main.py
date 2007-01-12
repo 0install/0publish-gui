@@ -7,14 +7,18 @@ import gtk.glade
 import signing
 import archive
 from implementation import ImplementationProperties
+from requires import Requires
 from xmltools import *
 
-from zeroinstall.zerostore import unpack
+from zeroinstall.zerostore import unpack, Stores
 
 RESPONSE_SAVE = 0
 RESPONSE_SAVE_AND_TEST = 1
 
 gladefile = os.path.join(rox.app_dir, '0publish-gui.glade')
+
+# Zero Install implementation cache
+stores = Stores()
 
 def choose_feed():
 	tree = gtk.glade.XML(gladefile, 'no_file_specified')
@@ -41,7 +45,6 @@ def choose_feed():
 	path = chooser.get_filename()
 	chooser.destroy()
 	return FeedEditor(path)
-
 
 emptyFeed = """<?xml version='1.0'?>
 <interface xmlns="%s">
@@ -105,7 +108,8 @@ class FeedEditor(loading.XDSLoader):
 		impl_tree.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [element_target], gtk.gdk.ACTION_MOVE)
 		impl_tree.enable_model_drag_dest([element_target], gtk.gdk.ACTION_MOVE)
 
-		impl_tree.get_selection().set_mode(g.SELECTION_BROWSE)
+		sel = impl_tree.get_selection()
+		sel.set_mode(g.SELECTION_BROWSE)
 
 		if os.path.exists(self.pathname):
 			data, _, self.key = signing.check_signature(self.pathname)
@@ -115,6 +119,10 @@ class FeedEditor(loading.XDSLoader):
 			self.doc = minidom.parseString(emptyFeed)
 			self.key = None
 			key_menu.set_active(0)
+
+		root = self.impl_model.get_iter_root()
+		if root:
+			sel.select_iter(root)
 
 		#self.attr_model = g.ListStore(str, str)
 		#attributes = self.wTree.get_widget('attributes')
@@ -126,6 +134,7 @@ class FeedEditor(loading.XDSLoader):
 	
 		self.wTree.get_widget('add_implementation').connect('clicked', lambda b: self.add_version())
 		self.wTree.get_widget('add_archive').connect('clicked', lambda b: self.add_archive())
+		self.wTree.get_widget('add_requires').connect('clicked', lambda b: self.add_requires())
 		self.wTree.get_widget('add_group').connect('clicked', lambda b: self.add_group())
 		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_version())
 		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
@@ -197,6 +206,17 @@ class FeedEditor(loading.XDSLoader):
 
 	def add_group(self):
 		ImplementationProperties(self, is_group = True)
+
+	def add_requires(self):
+		elem = self.get_selected()
+		if elem.namespaceURI == XMLNS_INTERFACE:
+			if elem.localName in ('group', 'implementation'):
+				Requires(self, parent = elem)
+				return
+			elif elem.localName == 'requires':
+				Requires(self, parent = elem.parentNode, element = elem)
+				return
+		rox.alert('Select a group, implementation or requirement!')
 
 	def edit_version(self, path = None, element = None):
 		assert not (path and element)

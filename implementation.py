@@ -7,10 +7,7 @@ import gtk.glade
 import main
 from xmltools import *
 
-from zeroinstall.zerostore import unpack, Stores, NotStored
-
-# Zero Install implementation cache
-stores = Stores()
+from zeroinstall.zerostore import unpack, NotStored
 
 def get_combo_value(combo):
 	i = combo.get_active()
@@ -40,7 +37,6 @@ class ImplementationProperties:
 		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
 
 		main_menu = widgets.get_widget('main_binary')
-		main_model = main_menu.get_model()
 
 		if element:
 			if element.localName == 'group':
@@ -113,14 +109,14 @@ class ImplementationProperties:
 				if x.localName == 'implementation' and x.namespaceURI == XMLNS_INTERFACE:
 					id = x.getAttribute('id')
 					try:
-						if id and stores.lookup(id):
+						if id and main.stores.lookup(id):
 							break
 					except NotStored, ex:
 						pass
 		if id:
 			# Find possible main settings, if possible
 			try:
-				cached_impl = stores.lookup(id)
+				cached_impl = main.stores.lookup(id)
 			except NotStored, ex:
 				pass
 			else:
