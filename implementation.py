@@ -33,7 +33,6 @@ class ImplementationProperties:
 			s = not inherit_arch.get_active()
 			widgets.get_widget('cpu').set_sensitive(s)
 			widgets.get_widget('os').set_sensitive(s)
-		shade_os_cpu()
 		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
 
 		main_menu = widgets.get_widget('main_binary')
@@ -63,6 +62,12 @@ class ImplementationProperties:
 				stability_menu.set_active(0)
 
 			main.combo_set_text(widgets.get_widget('license'), element.getAttribute('license'))
+			arch = element.getAttribute('arch')
+			if arch:
+				arch_os, arch_cpu = arch.split('-')
+				main.combo_set_text(widgets.get_widget('os'), arch_os)
+				main.combo_set_text(widgets.get_widget('cpu'), arch_cpu)
+				inherit_arch.set_active(False)
 
 			def ok():
 				self.update_impl(element, widgets)
@@ -95,6 +100,8 @@ class ImplementationProperties:
 				except:
 					remove_element(element)
 					raise
+
+		shade_os_cpu()
 
 		self.is_group = is_group
 
@@ -156,7 +163,7 @@ class ImplementationProperties:
 
 		def get_combo(name):
 			widget = widgets.get_widget(name)
-			return get_combo_value(widget)
+			return widget.get_active_text()
 
 		cpu = get_combo('cpu')
 		os = get_combo('os')

@@ -20,6 +20,13 @@ gladefile = os.path.join(rox.app_dir, '0publish-gui.glade')
 # Zero Install implementation cache
 stores = Stores()
 
+def available_in_path(prog):
+	for d in os.environ['PATH'].split(':'):
+		path = os.path.join(d, prog)
+		if os.path.isfile(path):
+			return True
+	return False
+
 def choose_feed():
 	tree = gtk.glade.XML(gladefile, 'no_file_specified')
 	box = tree.get_widget('no_file_specified')
@@ -98,7 +105,6 @@ class FeedEditor(loading.XDSLoader):
 		self.window.connect('response', resp)
 		rox.toplevel_ref()
 	
-		keys = signing.get_secret_keys()
 		key_menu = self.wTree.get_widget('feed_key')
 		key_model = g.ListStore(str, str)
 		key_menu.set_model(key_model)
@@ -107,9 +113,7 @@ class FeedEditor(loading.XDSLoader):
 		key_menu.pack_start(cell)
 		key_menu.add_attribute(cell, 'text', 1)
 
-		key_model.append((None, '(unsigned)'))
-		for k in keys:
-			key_model.append(k)
+		self.update_key_model()
 
 		self.impl_model = g.TreeStore(str, object)
 		impl_tree = self.wTree.get_widget('impl_tree')
@@ -141,6 +145,8 @@ class FeedEditor(loading.XDSLoader):
 		if root:
 			sel.select_iter(root)
 
+		self.wTree.get_widget('generate_key').connect('clicked', lambda b: self.generate_key())
+
 		self.wTree.get_widget('add_implementation').connect('clicked', lambda b: self.add_version())
 		self.wTree.get_widget('add_archive').connect('clicked', lambda b: self.add_archive())
 		self.wTree.get_widget('add_requires').connect('clicked', lambda b: self.add_requires())
@@ -149,6 +155,37 @@ class FeedEditor(loading.XDSLoader):
 		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
 		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_properties(path))
 		impl_tree.connect('drag-data-received', self.tree_drag_data_received)
+	
+	def update_key_model(self):
+		key_menu = self.wTree.get_widget('feed_key')
+		key_model = key_menu.get_model()
+		keys = signing.get_secret_keys()
+		key_model.clear()
+		key_model.append((None, '(unsigned)'))
+		for k in keys:
+			key_model.append(k)
+
+	def generate_key(self):
+		for x in ['xterm', 'konsole']:
+			if available_in_path(x):
+				child = subprocess.Popen([x, '-e', 'gpg', '--gen-key'], stderr = subprocess.PIPE)
+				break
+		else:
+			child = subprocess.Popen(['gnome-terminal', '-e', 'gpg --gen-key'], stderr = subprocess.PIPE)
+
+		def get_keygen_out():
+			errors = ''
+			while True:
+				yield signing.InputBlocker(child.stderr)
+				data = os.read(child.stderr.fileno(), 100)
+				if not data:
+					break
+				errors += data
+			self.update_key_model()
+			if errors:
+				rox.alert('Errors from terminal: %s' % errors)
+
+		tasks.Task(get_keygen_out())
 
 	def tree_drag_data_received(self, treeview, context, x, y, selection, info, time):
 		if not selection: return

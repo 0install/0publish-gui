@@ -72,15 +72,11 @@ def check_signature(path):
 	for sig in sigs:
 		if isinstance(sig, gpg.ValidSig):
 			return data, sign_fn, sig.fingerprint
-	print "ERROR: No valid signatures found!"
+	error = "ERROR: No valid signatures found!\n"
 	for sig in sigs:
-		print "Got:", sig
-	ok = raw_input('Ignore and load anyway? (y/N) ').lower()
-	if ok and 'yes'.startswith(ok):
-		import __main__
-		__main__.force_save = True
-		return data, sign_unsigned, None
-	sys.exit(1)
+		error += "\nGot: %s" % sig
+	error += '\n\nTo edit it anyway, remove the signature using a text editor.'
+	raise Exception(error)
 
 def write_tmp(path, data):
 	"""Create a temporary file in the same directory as 'path' and write data to it."""
