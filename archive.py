@@ -5,7 +5,7 @@ import rox, os, sys, urlparse, tempfile, shutil, time
 from rox import g, tasks
 import gtk.glade
 
-from zeroinstall.zerostore import unpack, manifest
+from zeroinstall.zerostore import unpack, manifest, NotStored
 
 import signing
 from xmltools import *
@@ -122,11 +122,18 @@ class AddArchiveBox:
 			self.tmpdir = None
 
 	def create_archive_element(self, url, mime_type, root, extract, size):
-		alg = manifest.get_algorithm('sha1')
+		alg = manifest.get_algorithm('sha1new')
 		digest = alg.new_digest()
 		for line in alg.generate_manifest(root):
 			digest.update(line + '\n')
 		id = alg.getID(digest)
+
+		# Add it to the cache if missing
+		# Helps with setting 'main' attribute later
+		try:
+			main.stores.lookup(id)
+		except NotStored:
+			main.stores.add_dir_to_cache(id, root)
 
 		# Do we already have an implementation with this digest?
 		impl_element = self.feed_editor.find_implementation(id)
