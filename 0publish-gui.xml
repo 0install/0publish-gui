@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface">
+  <name>0publish-gui</name>
+  <summary>GTK editor for Zero Install feeds</summary>
+  <description>
+Publishing a program using Zero Install requires you to create an XML file
+listing the available versions, where to get them, and what other software they
+depend on.
+
+This program provides a simple graphical interface for creating and editing
+these feeds.</description>
+  <homepage>http://0install.net/</homepage>
+  <implementation id="." main="0publish-gui" released="2007-01-12" version="0.1">
+    <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
+      <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
+    </requires>
+  </implementation>
+</interface>

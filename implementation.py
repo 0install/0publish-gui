@@ -21,12 +21,12 @@ class ImplementationProperties:
 
 		widgets = gtk.glade.XML(main.gladefile, 'version')
 
-		attributes = g.ListStore(str, str)
-		attr_view = widgets.get_widget('attributes')
-		attr_view.set_model(attributes)
+		#attributes = g.ListStore(str, str)
+		#attr_view = widgets.get_widget('attributes')
+		#attr_view.set_model(attributes)
 
-		attr_view.append_column(g.TreeViewColumn('Name'))
-		attr_view.append_column(g.TreeViewColumn('Value'))
+		#attr_view.append_column(g.TreeViewColumn('Name'))
+		#attr_view.append_column(g.TreeViewColumn('Value'))
 
 		inherit_arch = widgets.get_widget('inherit_arch')
 		def shade_os_cpu():
