@@ -753,7 +753,7 @@
 		      <property name="tooltip" translatable="yes">Specify that this software depends on some library or other package</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Add Requirement</property>
+		      <property name="label" translatable="yes">Add Requires</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -905,10 +905,19 @@
 	      <property name="left_margin">4</property>
 	      <property name="right_margin">4</property>
 	      <property name="indent">0</property>
-	      <property name="text" translatable="yes">To create a feed for a new program, fill in the fields on the first tab and then add a new version using the 'Versions' tab.
+	      <property name="text" translatable="yes">To create a feed for a new program, fill in the fields on the &quot;Feed information&quot; tab and then add at least one version using the &quot;Add Archive&quot; button in the &quot;Versions&quot; tab.
+
+If your program needs a library, use the &quot;Add Requires&quot; button to specifiy this. Create groups to avoid having to list the requirements and attributes again for every version.
+
+You can move versions, groups and requirements around using drag-and-drop. Ensure that requirements and implementations are inside their groups.
+
+To try out your new interface, either run it with &quot;0launch myfile.xml&quot; or use the &quot;Save and Test&quot; button.
 
 To publish a feed on the web, you must also sign it. Select the key you want to use from the menu (or create a new one if needed using the 'Add' button).
-</property>
+
+For more information, visit:
+
+  http://0install.net/dev.html</property>
 	    </widget>
 	  </child>
 	</widget>
