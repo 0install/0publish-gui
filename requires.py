@@ -33,7 +33,8 @@ class Requires:
 
 		uri.connect('changed', self.update_uri)
 
-		self.version_element = None	# Last version child
+		self.version_element = None	# Last <version> child
+		self.env_element = None		# Last <environment> child
 
 		if element:
 			main.combo_set_text(uri, element.getAttribute('interface'))
@@ -46,8 +47,12 @@ class Requires:
 					self.env_element = child
 
 			if self.version_element:
-				for x in ['before', 'not_before']:
-					self.widgets.get_widget(x).set_text(self.version_element.getAttribute(x) or '')
+				self.widgets.get_widget('before').set_text(self.version_element.getAttribute('before') or '')
+				self.widgets.get_widget('not_before').set_text(self.version_element.getAttribute('not-before') or '')
+			if self.env_element:
+				for x in ['name', 'insert']:
+					main.combo_set_text(self.widgets.get_widget('env_' + x), self.env_element.getAttribute(x))
+				self.widgets.get_widget('env_default').set_text(self.env_element.getAttribute('default') or '')
 
 			def ok():
 				self.update_element(element, self.widgets)
@@ -107,6 +112,23 @@ class Requires:
 			if not self.version_element:
 				self.version_element = create_element(element, 'version')
 			set_or_remove(self.version_element, 'before', before)
-			set_or_remove(self.version_element, 'not_before', not_before)
+			set_or_remove(self.version_element, 'not-before', not_before)
 		elif self.version_element:
 			remove_element(self.version_element)
+			self.version_element = None
+
+		env_name = widgets.get_widget('env_name').get_active_text()
+		env_insert = widgets.get_widget('env_insert').get_active_text()
+		env_default = widgets.get_widget('env_default').get_text()
+
+		if env_name:
+			if not self.env_element:
+				self.env_element = create_element(element, 'environment')
+			self.env_element.setAttribute('name', env_name)
+			self.env_element.setAttribute('insert', env_insert)
+			set_or_remove(self.env_element, 'default', env_default)
+		elif env_insert or env_default:
+			raise Exception('Missing environment variable name!')
+		elif self.env_element:
+			remove_element(self.env_element)
+			self.env_element = None

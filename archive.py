@@ -157,4 +157,4 @@ class AddArchiveBox:
 		self.feed_editor.update_version_model()
 
 		if created_impl:
-			self.feed_editor.edit_version(element = impl_element)
+			self.feed_editor.edit_properties(element = impl_element)

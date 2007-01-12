@@ -129,6 +129,9 @@ class FeedEditor(loading.XDSLoader):
 			data, _, self.key = signing.check_signature(self.pathname)
 			self.doc = minidom.parseString(data)
 			self.update_fields()
+
+			# Default to showing the versions tab
+			self.wTree.get_widget('notebook').next_page()
 		else:
 			self.doc = minidom.parseString(emptyFeed)
 			self.key = None
@@ -138,14 +141,6 @@ class FeedEditor(loading.XDSLoader):
 		if root:
 			sel.select_iter(root)
 
-		#self.attr_model = g.ListStore(str, str)
-		#attributes = self.wTree.get_widget('attributes')
-		#attributes.set_model(self.attr_model)
-		#text = g.CellRendererText()
-		#for title in ['Attribute', 'Value']:
-		#	column = g.TreeViewColumn(title, text)
-		#	attributes.append_column(column)
-	
 		self.wTree.get_widget('add_implementation').connect('clicked', lambda b: self.add_version())
 		self.wTree.get_widget('add_archive').connect('clicked', lambda b: self.add_archive())
 		self.wTree.get_widget('add_requires').connect('clicked', lambda b: self.add_requires())
@@ -154,8 +149,6 @@ class FeedEditor(loading.XDSLoader):
 		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
 		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_properties(path))
 		impl_tree.connect('drag-data-received', self.tree_drag_data_received)
-
-		self.wTree.get_widget('notebook').next_page()
 
 	def tree_drag_data_received(self, treeview, context, x, y, selection, info, time):
 		if not selection: return
@@ -185,7 +178,10 @@ class FeedEditor(loading.XDSLoader):
 			if src.namespaceURI != XMLNS_INTERFACE: return
 			if new_parent.namespaceURI != XMLNS_INTERFACE: return
 
-			if new_parent.localName in ('group', 'interface'):
+			if new_parent.localName == 'group':
+				if src.localName not in ('implementation', 'group', 'requires'):
+					return
+			elif new_parent.localName == 'interface':
 				if src.localName not in ('implementation', 'group'):
 					return
 			elif new_parent.localName == 'implementation':
@@ -210,11 +206,6 @@ class FeedEditor(loading.XDSLoader):
 				insert_element(src, new_parent)
 			self.update_version_model()
 
-	def tree_drag_data_get(self, tv, context, data, info, time):
-		if info != element_target[2]:
-			return
-		print "get"
-
 	def add_version(self):
 		ImplementationProperties(self)
 
@@ -224,11 +215,10 @@ class FeedEditor(loading.XDSLoader):
 	def add_requires(self):
 		elem = self.get_selected()
 		if elem.namespaceURI == XMLNS_INTERFACE:
+			if elem.localName not in ('group', 'implementation'):
+				elem = elem.parentNode
 			if elem.localName in ('group', 'implementation'):
 				Requires(self, parent = elem)
-				return
-			elif elem.localName == 'requires':
-				Requires(self, parent = elem.parentNode, element = elem)
 				return
 		rox.alert('Select a group, implementation or requirement!')
 
@@ -243,14 +233,14 @@ class FeedEditor(loading.XDSLoader):
 			element = self.impl_model[path][1]
 
 		if element.namespaceURI != XMLNS_INTERFACE:
-			rox.alert("Sorry, I don't known how to edit %s elements!" % elements.namespaceURI)
+			rox.alert("Sorry, I don't known how to edit %s elements!" % element.namespaceURI)
 
 		if element.localName in ('group', 'implementation'):
 			ImplementationProperties(self, element)
 		elif element.localName == 'requires':
 			Requires(self, parent = element.parentNode, element = element)
 		else:
-			rox.alert("Sorry, I don't known how to edit %s elements!" % elements.localName)
+			rox.alert("Sorry, I don't known how to edit %s elements!" % element.localName)
 	
 	def update_fields(self):
 		root = self.doc.documentElement
@@ -296,6 +286,9 @@ class FeedEditor(loading.XDSLoader):
 			if child.namespaceURI != XMLNS_INTERFACE: continue
 			if child.localName == 'archive':
 				self.impl_model.append(iter, ['Archive ' + child.getAttribute('href'), child])
+			elif child.localName == 'requires':
+				req_iface = child.getAttribute('interface')
+				self.impl_model.append(iter, ['Impl requires %s' % req_iface, child])
 			else:
 				self.impl_model.append(iter, ['<%s>' % child.localName, child])
 	
@@ -312,7 +305,7 @@ class FeedEditor(loading.XDSLoader):
 
 				if x.localName == 'requires':
 					req_iface = x.getAttribute('interface')
-					new = self.impl_model.append(iter, ['Requires %s' % req_iface, x])
+					new = self.impl_model.append(iter, ['Group requires %s' % req_iface, x])
 
 				if x.localName not in ('implementation', 'group'): continue
 

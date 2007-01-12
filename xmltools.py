@@ -77,6 +77,16 @@ def remove_element(elem):
 			parent.removeChild(prev)
 	parent.removeChild(elem)
 
+	whitespace = []
+	for x in parent.childNodes:
+		if x.nodeType != Node.TEXT_NODE: return
+		if x.nodeValue.strip(): return
+		whitespace.append(x)
+	
+	# Nothing but white-space left
+	for w in whitespace:
+		parent.removeChild(w)
+
 def format_para(para):
 	"""Turn new-lines into spaces, removing any blank lines."""
 	lines = [l.strip() for l in para.split('\n')]

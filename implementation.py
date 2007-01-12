@@ -115,11 +115,14 @@ class ImplementationProperties:
 						pass
 		if id:
 			# Find possible main settings, if possible
-			try:
-				cached_impl = main.stores.lookup(id)
-			except NotStored, ex:
-				pass
+			if id.startswith('/') or id.startswith('.'):
+				cached_impl = os.path.abspath(os.path.join(os.path.dirname(feed_editor.pathname), id))
 			else:
+				try:
+					cached_impl = main.stores.lookup(id)
+				except NotStored, ex:
+					cached_impl = None
+			if cached_impl:
 				i = 0
 				for (dirpath, dirnames, filenames) in os.walk(cached_impl):
 					for file in filenames:
