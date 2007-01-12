@@ -711,6 +711,7 @@
 		  <child>
 		    <widget class="GtkButton" id="add_archive">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Add a new version to this feed, from an archive of the release</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Add Archive</property>
@@ -722,9 +723,11 @@
 
 		  <child>
 		    <widget class="GtkButton" id="add_implementation">
+		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Add a version in a local directory</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="label" translatable="yes">Add Implementation</property>
+		      <property name="label" translatable="yes">Add Local</property>
 		      <property name="use_underline">True</property>
 		      <property name="relief">GTK_RELIEF_NORMAL</property>
 		      <property name="focus_on_click">True</property>
@@ -734,6 +737,7 @@
 		  <child>
 		    <widget class="GtkButton" id="add_group">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Group implementations together (to save duplicating attributes and requirements)</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label">Add Group</property>
@@ -746,6 +750,7 @@
 		  <child>
 		    <widget class="GtkButton" id="add_requires">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Specify that this software depends on some library or other package</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label" translatable="yes">Add Requirement</property>
@@ -758,6 +763,7 @@
 		  <child>
 		    <widget class="GtkButton" id="edit_properties">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Edit the selected item</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label">gtk-properties</property>
@@ -770,6 +776,7 @@
 		  <child>
 		    <widget class="GtkButton" id="remove">
 		      <property name="visible">True</property>
+		      <property name="tooltip" translatable="yes">Remove the selected item</property>
 		      <property name="can_default">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="label">gtk-remove</property>
@@ -1291,7 +1298,7 @@ To publish a feed on the web, you must also sign it. Select the key you want to 
 	<widget class="GtkTable" id="table1">
 	  <property name="border_width">8</property>
 	  <property name="visible">True</property>
-	  <property name="n_rows">5</property>
+	  <property name="n_rows">6</property>
 	  <property name="n_columns">4</property>
 	  <property name="homogeneous">False</property>
 	  <property name="row_spacing">4</property>
@@ -1522,43 +1529,6 @@ i686</property>
 	  </child>
 
 	  <child>
-	    <widget class="GtkFrame" id="frame12">
-	      <property name="visible">True</property>
-	      <property name="label_xalign">0</property>
-	      <property name="label_yalign">0.5</property>
-	      <property name="shadow_type">GTK_SHADOW_IN</property>
-
-	      <child>
-		<widget class="GtkLabel" id="id_label">
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">-</property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">2</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_END</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
-		</widget>
-	      </child>
-	    </widget>
-	    <packing>
-	      <property name="left_attach">1</property>
-	      <property name="right_attach">4</property>
-	      <property name="top_attach">1</property>
-	      <property name="bottom_attach">2</property>
-	      <property name="x_options">fill</property>
-	      <property name="y_options">fill</property>
-	    </packing>
-	  </child>
-
-	  <child>
 	    <widget class="GtkCheckButton" id="inherit_arch">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
@@ -1680,6 +1650,131 @@ Insecure</property>
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">4</property>
 	      <property name="bottom_attach">5</property>
+	      <property name="x_options">fill</property>
+	      <property name="y_options">fill</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="id_label">
+	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
+	      <property name="can_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes">.</property>
+	      <property name="has_frame">True</property>
+	      <property name="invisible_char">*</property>
+	      <property name="activates_default">False</property>
+	    </widget>
+	    <packing>
+	      <property name="left_attach">1</property>
+	      <property name="right_attach">4</property>
+	      <property name="top_attach">1</property>
+	      <property name="bottom_attach">2</property>
+	      <property name="y_options"></property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label58">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">License</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">1</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+	      <property name="width_chars">-1</property>
+	      <property name="single_line_mode">False</property>
+	      <property name="angle">0</property>
+	    </widget>
+	    <packing>
+	      <property name="left_attach">0</property>
+	      <property name="right_attach">1</property>
+	      <property name="top_attach">5</property>
+	      <property name="bottom_attach">6</property>
+	      <property name="x_options">fill</property>
+	      <property name="y_options"></property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkComboBoxEntry" id="license">
+	      <property name="visible">True</property>
+	      <property name="items" translatable="yes">Affero General Public License
+Aladdin Free Public License (AFPL)
+Apple Public Source License (APSL)
+Copyback License
+DFSG approved
+Eclipse Public License
+Eiffel Forum License (EFL)
+Free For Educational Use
+Free For Home Use
+Free for non-commercial use
+Free To Use But Restricted
+Freely Distributable
+Freeware
+Netscape Public License (NPL)
+Nokia Open Source License (NOKOS)
+OSI Approved
+OSI Approved :: Academic Free License (AFL)
+OSI Approved :: Adaptive Public License (APL)
+OSI Approved :: Artistic License
+OSI Approved :: BSD License (original)
+OSI Approved :: BSD License (revised)
+OSI Approved :: Common Development and Distribution License (CDDL)
+OSI Approved :: Common Public License
+OSI Approved :: GNAT Modified GPL (GMGPL)
+OSI Approved :: GNU Free Documentation License (FDL)
+OSI Approved :: GNU General Public License (GPL)
+OSI Approved :: GNU Lesser General Public License (LGPL)
+OSI Approved :: Guile license
+OSI Approved :: IBM Public License
+OSI Approved :: MIT/X Consortium License
+OSI Approved :: MITRE Collaborative Virtual Workspace License (CVW)
+OSI Approved :: Mozilla Public License (MPL)
+OSI Approved :: Open Software License
+OSI Approved :: Perl License
+OSI Approved :: Python License
+OSI Approved :: Q Public License (QPL)
+OSI Approved :: Ricoh Source Code Public License
+OSI Approved :: SUN Public License
+OSI Approved :: W3C License
+OSI Approved :: zlib/libpng License
+Other/Proprietary License
+Other/Proprietary License with Free Trial
+Other/Proprietary License with Source
+Public Domain
+Shareware
+SUN Binary Code License
+SUN Community Source License
+The Apache License
+The Apache License 2.0
+The CeCILL License
+The Clarified Artistic License
+The Latex Project Public License (LPPL)
+The Open Content License
+The PHP License
+Voxel Public License (VPL)
+WTFPL
+Zope Public License (ZPL)
+</property>
+	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
+	      <property name="focus_on_click">True</property>
+	    </widget>
+	    <packing>
+	      <property name="left_attach">1</property>
+	      <property name="right_attach">4</property>
+	      <property name="top_attach">5</property>
+	      <property name="bottom_attach">6</property>
 	      <property name="x_options">fill</property>
 	      <property name="y_options">fill</property>
 	    </packing>

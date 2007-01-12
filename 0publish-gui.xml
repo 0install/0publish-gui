@@ -10,7 +10,7 @@ depend on.
 This program provides a simple graphical interface for creating and editing
 these feeds.</description>
   <homepage>http://0install.net/</homepage>
-  <implementation id="." main="0publish-gui" released="2007-01-12" version="0.1">
+  <implementation id="." license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui" released="2007-01-12" version="0.1">
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>

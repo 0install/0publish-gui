@@ -62,12 +62,14 @@ class ImplementationProperties:
 			else:
 				stability_menu.set_active(0)
 
+			main.combo_set_text(widgets.get_widget('license'), element.getAttribute('license'))
+
 			def ok():
 				self.update_impl(element, widgets)
 		else:
 			released = widgets.get_widget('released')
 
-			id = None
+			id = '.'
 			if is_group:
 				widgets.get_widget('version_number').set_text('')
 				released.set_text('')
@@ -86,16 +88,26 @@ class ImplementationProperties:
 				else:
 					element_name = 'implementation'
 				element = create_element(self.feed_editor.doc.documentElement, element_name)
-				self.update_impl(element, widgets)
+				if not is_group:
+					element.setAttribute('id', '.')
+				try:
+					self.update_impl(element, widgets)
+				except:
+					remove_element(element)
+					raise
 
 		self.is_group = is_group
 
+		id_label = widgets.get_widget('id_label')
+
 		if is_group:
-			widgets.get_widget('id_label').set_text('(group)')
+			id_label.set_text('(group)')
 		elif id:
-			widgets.get_widget('id_label').set_text(id)
+			id_label.set_text(id)
+			if id.startswith('.') or id.startswith('/'):
+				id_label.set_sensitive(True)
 		else:
-			widgets.get_widget('-')
+			id_label.set_text('-')
 
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
@@ -131,13 +143,8 @@ class ImplementationProperties:
 							relbasedir = dirpath[len(cached_impl) + 1:]
 							new = os.path.join(relbasedir, file)
 							main_menu.append_text(new)
-							if new == main_binary:
-								main_binary = None
-								main_menu.set_active(i)
 							i += 1
-		if main_binary:
-			main_menu.append_text(main_binary)
-			main_menu.set_active(i)
+		main.combo_set_text(main_menu, main_binary)
 
 		dialog = widgets.get_widget('version')
 		dialog.connect('response', resp)
@@ -153,6 +160,7 @@ class ImplementationProperties:
 
 		cpu = get_combo('cpu')
 		os = get_combo('os')
+		license = get_combo('license')
 
 		widget = widgets.get_widget('stability')
 		if widget.get_active() == 0:
@@ -167,10 +175,20 @@ class ImplementationProperties:
 
 		main = widgets.get_widget('main_binary').get_active_text()
 
+		old_id = element.getAttribute('id')
+		if old_id.startswith('/') or old_id.startswith('.'):
+			# Local paths are editable
+			new_id = widgets.get_widget('id_label').get_text()
+			if new_id.startswith('.') or new_id.startswith('/'):
+				element.setAttribute('id', new_id)
+			else:
+				raise Exception('Local IDs must start with "." or "/"')
+
 		for name, value in [('version', version),
 			            ('arch', arch),
 			            ('main', main),
 			            ('released', released),
+			            ('license', license),
 			            ('stability', stability)]:
 			if value:
 				element.setAttribute(name, value)
