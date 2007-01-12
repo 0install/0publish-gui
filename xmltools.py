@@ -107,3 +107,9 @@ def singleton_text(parent, localName, uri = XMLNS_INTERFACE):
 	elements = list(children(parent, localName, uri))
 	if elements:
 		return data(elements[0])
+
+def set_or_remove(element, attr_name, value):
+	if value:
+		element.setAttribute(attr_name, value)
+	elif element.hasAttribute(attr_name):
+		element.removeAttribute(attr_name)

@@ -46,6 +46,20 @@ def choose_feed():
 	chooser.destroy()
 	return FeedEditor(path)
 
+def combo_set_text(combo, text):
+	if combo.get_active_text() or text:
+		model =  combo.get_model()
+		i = 0
+		for row in model:
+			if row[0] == text:
+				combo.set_active(i)
+				return
+			i += 1
+		combo.append_text(text)
+		combo.set_active(i)
+	else:
+		return
+
 emptyFeed = """<?xml version='1.0'?>
 <interface xmlns="%s">
   <name>Name</name>
@@ -136,9 +150,9 @@ class FeedEditor(loading.XDSLoader):
 		self.wTree.get_widget('add_archive').connect('clicked', lambda b: self.add_archive())
 		self.wTree.get_widget('add_requires').connect('clicked', lambda b: self.add_requires())
 		self.wTree.get_widget('add_group').connect('clicked', lambda b: self.add_group())
-		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_version())
+		self.wTree.get_widget('edit_properties').connect('clicked', lambda b: self.edit_properties())
 		self.wTree.get_widget('remove').connect('clicked', lambda b: self.remove_version())
-		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_version(path))
+		impl_tree.connect('row-activated', lambda tv, path, col: self.edit_properties(path))
 		impl_tree.connect('drag-data-received', self.tree_drag_data_received)
 
 		self.wTree.get_widget('notebook').next_page()
@@ -218,7 +232,7 @@ class FeedEditor(loading.XDSLoader):
 				return
 		rox.alert('Select a group, implementation or requirement!')
 
-	def edit_version(self, path = None, element = None):
+	def edit_properties(self, path = None, element = None):
 		assert not (path and element)
 
 		if element:
@@ -228,7 +242,15 @@ class FeedEditor(loading.XDSLoader):
 		else:
 			element = self.impl_model[path][1]
 
-		ImplementationProperties(self, element)
+		if element.namespaceURI != XMLNS_INTERFACE:
+			rox.alert("Sorry, I don't known how to edit %s elements!" % elements.namespaceURI)
+
+		if element.localName in ('group', 'implementation'):
+			ImplementationProperties(self, element)
+		elif element.localName == 'requires':
+			Requires(self, parent = element.parentNode, element = element)
+		else:
+			rox.alert("Sorry, I don't known how to edit %s elements!" % elements.localName)
 	
 	def update_fields(self):
 		root = self.doc.documentElement
