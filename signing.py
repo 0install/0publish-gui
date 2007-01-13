@@ -184,10 +184,10 @@ def export_key(dir, fingerprint):
 		stream.close()
 	key_file = os.path.join(dir, keyID + '.gpg')
 	if os.path.isfile(key_file):
-		return
+		return None
 	key_stream = file(key_file, 'w')
 	stream = os.popen("gpg -a --export '%s'" % fingerprint)
 	shutil.copyfileobj(stream, key_stream)
 	stream.close()
 	key_stream.close()
-	print "Exported public key as '%s'" % key_file
+	return key_file

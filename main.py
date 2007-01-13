@@ -1,6 +1,6 @@
 from xml.dom import Node, minidom
 
-import rox, os, pango, sys, textwrap, traceback, subprocess, time, urlparse
+import rox, os, pango, sys, textwrap, traceback, subprocess, time, urlparse, shutil
 from rox import g, tasks, loading
 import gtk.glade
 
@@ -19,6 +19,8 @@ gladefile = os.path.join(rox.app_dir, '0publish-gui.glade')
 
 # Zero Install implementation cache
 stores = Stores()
+
+stylesheet_src = os.path.join(os.path.dirname(__file__), 'interface.xsl')
 
 def available_in_path(prog):
 	for d in os.environ['PATH'].split(':'):
@@ -432,10 +434,26 @@ class FeedEditor(loading.XDSLoader):
 		key_model = key_menu.get_model()
 		self.key = key_model[key_menu.get_active()][0]
 	
+	def export_stylesheet_and_key(self):
+		dir = os.path.dirname(self.pathname)
+		stylesheet = os.path.join(dir, 'interface.xsl')
+		if not os.path.exists(stylesheet):
+			shutil.copyfile(stylesheet_src, stylesheet)
+			rox.info("I have saved a stylesheet as '%s'. You should upload "
+				"this to your web-server in the same directory as the feed file. "
+				"This allows browsers to display the feed nicely." % stylesheet)
+
+		exported =  signing.export_key(dir, self.key)
+		if exported:
+			rox.info("I have exported your public key as '%s'. You should upload "
+				"this to your web-server in the same directory as the feed file. "
+				"This allows people to check the signature on your feed." % exported)
+	
 	def save(self, callback = None):
 		self.update_doc()
 		if self.key:
 			sign = signing.sign_xml
+			self.export_stylesheet_and_key()
 		else:
 			sign = signing.sign_unsigned
 		data = self.doc.toxml() + '\n'
