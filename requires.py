@@ -10,11 +10,6 @@ from zeroinstall.zerostore import NotStored
 from zeroinstall.injector import model
 from zeroinstall.injector.policy import Policy
 
-def get_combo_value(combo):
-	i = combo.get_active()
-	m = combo.get_model()
-	return m[i][0]
-
 class Requires:
 	def __init__(self, feed_editor, parent, element = None):
 		self.feed_editor = feed_editor

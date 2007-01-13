@@ -11,9 +11,6 @@ import signing
 from xmltools import *
 import main
 
-RESPONSE_SAVE = 0
-RESPONSE_SAVE_AND_TEST = 1
-
 dotted_ints = '[0-9]+(.[0-9]+)*'
 version_regexp = '[^a-zA-Z0-9](%s)(-(pre|rc|post|)%s)*' % (dotted_ints, dotted_ints)
 

@@ -259,7 +259,7 @@ class FeedEditor(loading.XDSLoader):
 			if elem.localName in ('group', 'implementation'):
 				Requires(self, parent = elem)
 				return
-		rox.alert('Select a group, implementation or requirement!')
+		rox.alert('Select a group or implementation!')
 
 	def edit_properties(self, path = None, element = None):
 		assert not (path and element)
@@ -291,6 +291,10 @@ class FeedEditor(loading.XDSLoader):
 		set('name')
 		set('summary')
 		set('homepage')
+
+		uri = root.getAttribute('uri')
+		if uri:
+			self.wTree.get_widget('feed_url').set_text(uri)
 
 		for icon in children(root, 'icon'):
 			if icon.getAttribute('type') == 'image/png':

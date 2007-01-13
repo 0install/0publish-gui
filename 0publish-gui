@@ -10,8 +10,6 @@ if sys.version_info < (2, 4):
 import gtk.glade
 from main import FeedEditor, choose_feed
 
-RESPONSE_SAVE = 0
-
 version = '0.1'
 parser = OptionParser(usage="usage: %prog [options] interface")
 parser.add_option("-V", "--version", help="display version information", action='store_true')
