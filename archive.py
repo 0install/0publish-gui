@@ -1,7 +1,7 @@
 from xml.dom import Node, minidom
 import re
 
-import rox, os, sys, urlparse, tempfile, shutil, time
+import rox, os, sys, urlparse, tempfile, shutil, time, urllib
 from rox import g, tasks
 import gtk.glade
 
@@ -42,6 +42,8 @@ class AddArchiveBox:
 		col.add_attribute(cell, 'text', 0)
 		tree.append_column(col)
 
+		dialog = widgets.get_widget('add_archive')
+
 		widgets.get_widget('mime_type').set_active(0)
 
 		def local_archive_changed(chooser):
@@ -54,7 +56,6 @@ class AddArchiveBox:
 			self.tmpdir = tempfile.mkdtemp('-0publish-gui')
 			url = widgets.get_widget('archive_url').get_text()
 			try:
-				dialog = widgets.get_widget('add_archive')
 				dialog.window.set_cursor(watch)
 				gtk.gdk.flush()
 				try:
@@ -84,6 +85,24 @@ class AddArchiveBox:
 		local_archive_button.connect('selection-changed', local_archive_changed)
 		widgets.get_widget('subdirectory_frame').set_sensitive(False)
 
+		def download(button):
+			url = widgets.get_widget('archive_url').get_text()
+
+			chooser = g.FileChooserDialog('Save archive as...', dialog, g.FILE_CHOOSER_ACTION_SAVE)
+			chooser.set_current_name(os.path.basename(url))
+			chooser.add_button(g.STOCK_CANCEL, g.RESPONSE_CANCEL)
+			chooser.add_button(g.STOCK_SAVE, g.RESPONSE_OK)
+			chooser.set_default_response(g.RESPONSE_OK)
+			resp = chooser.run()
+			filename = chooser.get_filename()
+			chooser.destroy()
+			if resp != g.RESPONSE_OK:
+				return
+
+			DownloadBox(url, filename, local_archive_button)
+
+		widgets.get_widget('download').connect('clicked', download)
+
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
 				url = widgets.get_widget('archive_url').get_text()
@@ -108,7 +127,6 @@ class AddArchiveBox:
 			self.destroy_tmp()
 			dialog.destroy()
 
-		dialog = widgets.get_widget('add_archive')
 		dialog.connect('response', resp)
 
 		if local_archive:
@@ -165,3 +183,57 @@ class AddArchiveBox:
 
 		if created_impl:
 			self.feed_editor.edit_properties(element = impl_element)
+
+class DownloadBox:
+	def __init__(self, url, path, archive_button):
+		widgets = gtk.glade.XML(main.gladefile, 'download')
+		gtk.gdk.flush()
+
+		output = file(path, 'w')
+
+		dialog = widgets.get_widget('download')
+		progress = widgets.get_widget('progress')
+		
+		cancelled = tasks.Blocker()
+		def resp(box, resp):
+			cancelled.trigger()
+		dialog.connect('response', resp)
+
+		def download():
+			stream = None
+
+			def cleanup():
+				dialog.destroy()
+				if output:
+					output.close()
+				if stream:
+					stream.close()
+
+			try:
+				# (urllib2 is buggy; no fileno)
+				stream = urllib.urlopen(url)
+				size = float(stream.info().get('Content-Length', None))
+				got = 0
+
+				while True:
+					yield signing.InputBlocker(stream), cancelled
+					if cancelled.happened:
+						raise Exception("Download cancelled at user's request")
+					data = os.read(stream.fileno(), 1024)
+					if not data: break
+					output.write(data)
+					got += len(data)
+
+					if size:
+						progress.set_fraction(got / size)
+					else:
+						progress.pulse()
+			except:
+				# No finally in python 2.4
+				cleanup()
+				raise
+			else:
+				cleanup()
+				archive_button.set_filename(path)
+
+		tasks.Task(download())
