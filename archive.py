@@ -87,6 +87,8 @@ class AddArchiveBox:
 
 		def download(button):
 			url = widgets.get_widget('archive_url').get_text()
+			if not url:
+				raise Exception("Enter a URL to download from!")
 
 			chooser = g.FileChooserDialog('Save archive as...', dialog, g.FILE_CHOOSER_ACTION_SAVE)
 			chooser.set_current_name(os.path.basename(url))
