@@ -41,7 +41,8 @@ class AddArchiveBox:
 
 		dialog = widgets.get_widget('add_archive')
 
-		widgets.get_widget('mime_type').set_active(0)
+		mime_type = widgets.get_widget('mime_type')
+		mime_type.set_active(0)
 
 		def local_archive_changed(chooser):
 			model.clear()
@@ -50,13 +51,24 @@ class AddArchiveBox:
 			self.destroy_tmp()
 			if not path: return
 
+			if mime_type.get_active() == 0:
+				type = None
+			else:
+				type = mime_type.get_active_text()
+			print type
+
+			archive_url = widgets.get_widget('archive_url')
+			url = archive_url.get_text()
+			if not url:
+				url = 'http://SITE/' + os.path.basename(path)
+				archive_url.set_text(url)
+
 			self.tmpdir = tempfile.mkdtemp('-0publish-gui')
-			url = widgets.get_widget('archive_url').get_text()
 			try:
 				dialog.window.set_cursor(watch)
 				gtk.gdk.flush()
 				try:
-					unpack.unpack_archive(url, file(path), self.tmpdir)
+					unpack.unpack_archive(url, file(path), self.tmpdir, type = type)
 				finally:
 					dialog.window.set_cursor(None)
 			except:
