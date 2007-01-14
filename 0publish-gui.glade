@@ -2037,15 +2037,17 @@ Zope Public License (ZPL)
 		      <child>
 			<widget class="GtkComboBox" id="mime_type">
 			  <property name="visible">True</property>
-			  <property name="items" translatable="yes">(auto)
+			  <property name="items" translatable="yes">(auto-detect)
+Autopackage
+application/vnd.ms-cab-compressed
 application/x-bzip-compressed-tar
 application/x-compressed-tar
-application/x-rpm
 application/x-deb
-application/zip
-application/vnd.ms-cab-compressed
+application/x-lzma-compressed-tar
+application/x-rpm
 application/x-tar
-application/x-lzma-compressed-tar</property>
+application/zip
+</property>
 			  <property name="add_tearoffs">False</property>
 			  <property name="focus_on_click">True</property>
 			</widget>

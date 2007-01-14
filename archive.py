@@ -21,10 +21,23 @@ def get_combo_value(combo):
 
 watch = gtk.gdk.Cursor(gtk.gdk.WATCH)
 
+def autopackage_get_details(package):
+	size = None
+	type = 'application/x-bzip-compressed-tar'
+	for line in file(package):
+		if line.startswith('export dataSize=') or line.startswith('export data_size='):
+			size = os.path.getsize(package) - int(line.split('"', 2)[1])
+		elif line.startswith('compression=') and 'lzma' in line:
+			type = 'application/x-lzma-compressed-tar'
+	if size is None:
+		raise Exception("Can't find payload in autopackage (missing 'dataSize')")
+	return size, type
+
 class AddArchiveBox:
 	def __init__(self, feed_editor, local_archive = None):
 		self.feed_editor = feed_editor
 		self.tmpdir = None
+		self.mime_type = self.start_offset = None
 
 		widgets = gtk.glade.XML(main.gladefile, 'add_archive')
 
@@ -55,7 +68,6 @@ class AddArchiveBox:
 				type = None
 			else:
 				type = mime_type.get_active_text()
-			print type
 
 			archive_url = widgets.get_widget('archive_url')
 			url = archive_url.get_text()
@@ -63,12 +75,25 @@ class AddArchiveBox:
 				url = 'http://SITE/' + os.path.basename(path)
 				archive_url.set_text(url)
 
+			start_offset = 0
+			if not type:
+				if url.endswith('.package'):
+					type = 'Autopackage'
+				else:
+					type = unpack.type_from_url(url)
+
+			if type == 'Autopackage':
+				# Autopackage isn't a real type. Examine the .package file
+				# and find out what it really is.
+				start_offset, type = autopackage_get_details(path)
+
 			self.tmpdir = tempfile.mkdtemp('-0publish-gui')
 			try:
 				dialog.window.set_cursor(watch)
 				gtk.gdk.flush()
 				try:
-					unpack.unpack_archive(url, file(path), self.tmpdir, type = type)
+					unpack.unpack_archive(url, file(path), self.tmpdir,
+							      type = type, start_offset = start_offset)
 				finally:
 					dialog.window.set_cursor(None)
 			except:
@@ -88,6 +113,8 @@ class AddArchiveBox:
 				iter = model.iter_children(iter)
 			selection.select_iter(iter)
 
+			self.mime_type = type
+			self.start_offset = start_offset
 			widgets.get_widget('subdirectory_frame').set_sensitive(True)
 
 		local_archive_button = widgets.get_widget('local_archive')
@@ -124,7 +151,6 @@ class AddArchiveBox:
 				local_archive = widgets.get_widget('local_archive').get_filename()
 				if not local_archive:
 					raise Exception('Please select a local file')
-				mime_type = get_combo_value(widgets.get_widget('mime_type'))
 				if selection.iter_is_selected(model.get_iter_root()):
 					root = self.tmpdir
 					extract = None
@@ -134,7 +160,10 @@ class AddArchiveBox:
 					root = os.path.join(self.tmpdir, extract)
 
 				size = os.path.getsize(local_archive)
-				self.create_archive_element(url, mime_type, root, extract, size)
+				if self.start_offset:
+					size -= self.start_offset
+				self.create_archive_element(url, self.mime_type, root, extract, size,
+						    self.start_offset)
 			self.destroy_tmp()
 			dialog.destroy()
 
@@ -150,7 +179,7 @@ class AddArchiveBox:
 			shutil.rmtree(self.tmpdir)
 			self.tmpdir = None
 
-	def create_archive_element(self, url, mime_type, root, extract, size):
+	def create_archive_element(self, url, mime_type, root, extract, size, start_offset):
 		alg = manifest.get_algorithm('sha1new')
 		digest = alg.new_digest()
 		for line in alg.generate_manifest(root):
@@ -189,6 +218,8 @@ class AddArchiveBox:
 		archive_element.setAttribute('size', str(size))
 		archive_element.setAttribute('href', url)
 		if extract: archive_element.setAttribute('extract', extract)
+		if mime_type: archive_element.setAttribute('type', mime_type)
+		if start_offset: archive_element.setAttribute('start-offset', str(start_offset))
 
 		self.feed_editor.update_version_model()
 
