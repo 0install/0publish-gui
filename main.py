@@ -139,6 +139,10 @@ class FeedEditor(loading.XDSLoader):
 			# Default to showing the versions tab
 			self.wTree.get_widget('notebook').next_page()
 		else:
+			default_name = os.path.basename(self.pathname)
+			if default_name.endswith('.xml'):
+				default_name = default_name[:-4]
+			self.wTree.get_widget('feed_name').set_text(default_name)
 			self.doc = minidom.parseString(emptyFeed)
 			self.key = None
 			key_menu.set_active(0)
@@ -242,7 +246,11 @@ class FeedEditor(loading.XDSLoader):
 				else:
 					insert_element(src, new_parent)
 			else:
-				insert_element(src, new_parent)
+				for next in child_elements(new_parent):
+					insert_before(src, next)
+					break
+				else:
+					insert_element(src, new_parent)
 			self.update_version_model()
 
 	def add_version(self):
