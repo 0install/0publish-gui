@@ -344,8 +344,15 @@ class FeedEditor(loading.XDSLoader):
 				self.impl_model.append(iter, ['<%s>' % child.localName, child])
 	
 	def update_version_model(self):
-		self.impl_model.clear()
 		impl_tree = self.wTree.get_widget('impl_tree')
+
+		# Remember which ones are open
+		expanded_elements = set()
+		impl_tree.map_expanded_rows(lambda tv, path: expanded_elements.add(self.impl_model[path][1]))
+
+		initial_build = not self.impl_model.get_iter_root()
+
+		self.impl_model.clear()
 		to_expand = []
 
 		def add_impls(elem, iter, attrs):
@@ -373,13 +380,16 @@ class FeedEditor(loading.XDSLoader):
 					self.add_archives(x, new)
 				elif x.localName == 'group':
 					new = self.impl_model.append(iter, ['Group', x])
-					to_expand.append(self.impl_model.get_path(new))
+					if initial_build:
+						expanded_elements.add(x)
 					add_impls(x, new, new_attrs)
 					
 		add_impls(self.doc.documentElement, None, attrs = {})
 
-		for path in to_expand:
-			impl_tree.expand_row(path, False)
+		def may_expand(model, path, iter):
+			if model[iter][1] in expanded_elements:
+				impl_tree.expand_row(path, False)
+		self.impl_model.foreach(may_expand)
 
 	def test(self):
 		child = os.fork()
