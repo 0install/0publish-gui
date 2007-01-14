@@ -69,6 +69,21 @@ def combo_set_text(combo, text):
 	else:
 		return
 
+def list_attrs(element):
+	attrs = element.attributes
+	names = []
+	for x in range(attrs.length):
+		attr = attrs.item(x)
+
+		if attr.name in ['id', 'version-modifier']: continue
+		if element.localName == 'implementation' and attr.name == 'version': continue
+
+		names.append(attr.name)
+	if names:
+		return ' (%s)' % ', '.join(names)
+	else:
+		return ''
+
 emptyFeed = """<?xml version='1.0'?>
 <interface xmlns="%s">
   <name>Name</name>
@@ -376,10 +391,10 @@ class FeedEditor(loading.XDSLoader):
 				if x.localName == 'implementation':
 					version = new_attrs.get('version', '(missing version number)') + \
 						  (new_attrs.get('version-modifier') or '')
-					new = self.impl_model.append(iter, ['Version %s' % version, x])
+					new = self.impl_model.append(iter, ['Version %s%s' % (version, list_attrs(x)), x])
 					self.add_archives(x, new)
 				elif x.localName == 'group':
-					new = self.impl_model.append(iter, ['Group', x])
+					new = self.impl_model.append(iter, ['Group%s' % list_attrs(x), x])
 					if initial_build:
 						expanded_elements.add(x)
 					add_impls(x, new, new_attrs)

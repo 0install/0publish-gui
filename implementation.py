@@ -126,7 +126,7 @@ class ImplementationProperties:
 				if x.localName == 'implementation' and x.namespaceURI == XMLNS_INTERFACE:
 					id = x.getAttribute('id')
 					try:
-						if id and main.stores.lookup(id):
+						if id and (id.startswith('.') or id.startswith('/') or main.stores.lookup(id)):
 							break
 					except NotStored, ex:
 						pass
