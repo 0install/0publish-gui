@@ -29,6 +29,8 @@ def autopackage_get_details(package):
 			size = os.path.getsize(package) - int(line.split('"', 2)[1])
 		elif line.startswith('compression=') and 'lzma' in line:
 			type = 'application/x-lzma-compressed-tar'
+		if size and type: break
+		if line.startswith('## END OF STUB'): break
 	if size is None:
 		raise Exception("Can't find payload in autopackage (missing 'dataSize')")
 	return size, type
