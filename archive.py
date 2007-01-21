@@ -204,7 +204,7 @@ class AddArchiveBox:
 			version = None
 			for m in re.finditer(version_regexp, leaf):
 				match = m.group()[1:]
-				if version is None or len(best) < len(match):
+				if version is None or len(version) < len(match):
 					version = match
 
 			impl_element = create_element(self.feed_editor.doc.documentElement, 'implementation')

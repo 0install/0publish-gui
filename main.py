@@ -15,6 +15,10 @@ from zeroinstall.zerostore import unpack, Stores
 RESPONSE_SAVE = 0
 RESPONSE_SAVE_AND_TEST = 1
 
+xml_header = """<?xml version="1.0" ?>
+<?xml-stylesheet type='text/xsl' href='interface.xsl'?>
+"""
+
 gladefile = os.path.join(rox.app_dir, '0publish-gui.glade')
 
 # Zero Install implementation cache
@@ -493,7 +497,7 @@ class FeedEditor(loading.XDSLoader):
 			self.export_stylesheet_and_key()
 		else:
 			sign = signing.sign_unsigned
-		data = self.doc.toxml() + '\n'
+		data = xml_header + self.doc.documentElement.toxml() + '\n'
 
 		gen = sign(self.pathname, data, self.key, callback)
 		# May require interaction to get the pass-phrase, so run in the background...
