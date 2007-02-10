@@ -10,6 +10,7 @@ from implementation import ImplementationProperties
 from requires import Requires
 from xmltools import *
 
+from zeroinstall.injector import model
 from zeroinstall.zerostore import unpack, Stores
 
 RESPONSE_SAVE = 0
@@ -534,3 +535,20 @@ class FeedEditor(loading.XDSLoader):
 					if x.getAttribute('id') == id:
 						return x
 		return find_impl(self.doc.documentElement)
+
+	def list_versions(self):
+		"""Return a list of (version, element) pairs, one for each <implementation>."""
+		versions = []
+
+		def add_versions(parent, version):
+			for x in child_elements(parent):
+				if x.namespaceURI != XMLNS_INTERFACE: continue
+				if x.hasAttribute('version'): version = x.getAttribute('version')
+				if x.localName == 'group':
+					add_versions(x, version)
+				elif x.localName == 'implementation':
+					versions.append((model.parse_version(version), x))
+
+		add_versions(self.doc.documentElement, version = None)
+
+		return versions

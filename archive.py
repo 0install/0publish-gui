@@ -5,8 +5,10 @@ import rox, os, sys, urlparse, tempfile, shutil, time, urllib
 from rox import g, tasks
 import gtk.glade
 
+from zeroinstall.injector import model
 from zeroinstall.zerostore import unpack, manifest, NotStored
 
+from logging import warn
 import signing
 from xmltools import *
 import main
@@ -33,6 +35,13 @@ def autopackage_get_details(package):
 	if size is None:
 		raise Exception("Can't find payload in autopackage (missing 'dataSize')")
 	return size, type
+
+def try_parse_version(version_str):
+	try:
+		return model.parse_version(version_str)
+	except SafeException, ex:
+		warn("Bad version", ex)
+		return None
 
 class AddArchiveBox:
 	def __init__(self, feed_editor, local_archive = None):
@@ -207,7 +216,25 @@ class AddArchiveBox:
 				if version is None or len(version) < len(match):
 					version = match
 
-			impl_element = create_element(self.feed_editor.doc.documentElement, 'implementation')
+			existing_versions = self.feed_editor.list_versions()
+			older_versions = []
+			if existing_versions and version:
+				parsed_version = try_parse_version(version)
+				if parsed_version:
+					older_versions = [(v, elem) for v, elem in existing_versions if v < parsed_version]
+
+			impl_element = self.feed_editor.doc.createElementNS(XMLNS_INTERFACE, 'implementation')
+
+			if older_versions:
+				# Try to add it just after the previous version's element in the XML document
+				insert_after(impl_element, max(older_versions)[1])
+			elif existing_versions:
+				# Else add it before the first
+				insert_before(impl_element, min(existing_versions)[1])
+			else:
+				# Put it in the root
+				insert_element(impl_element, self.feed_editor.doc.documentElement)
+
 			impl_element.setAttribute('id', id)
 			impl_element.setAttribute('released', time.strftime('%Y-%m-%d'))
 			if version: impl_element.setAttribute('version', version)
