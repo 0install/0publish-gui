@@ -37,6 +37,19 @@ def insert_before(new, next):
 		text = new_parent.ownerDocument.createTextNode('\n' + (' ' * indent_depth))
 		new_parent.insertBefore(text, new)
 
+def insert_after(new, prev):
+	indent_depth = indent_of(prev)
+	new_parent = prev.parentNode
+
+	if prev.nextSibling:
+		new_parent.insertBefore(new, prev.nextSibling)
+	else:
+		new_parent.appendChild(new, new_parent)
+
+	if indent_depth:
+		text = new_parent.ownerDocument.createTextNode('\n' + (' ' * indent_depth))
+		new_parent.insertBefore(text, new)
+
 def insert_element(new, parent, before = []):
 	indent = indent_of(parent) + 2	# Default indent
 	last_element = None
