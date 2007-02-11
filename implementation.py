@@ -77,6 +77,9 @@ class ImplementationProperties:
 				main.combo_set_text(widgets.get_widget('os'), arch_os)
 				main.combo_set_text(widgets.get_widget('cpu'), arch_cpu)
 				inherit_arch.set_active(False)
+			else:
+				widgets.get_widget('os').set_active(0)
+				widgets.get_widget('cpu').set_active(0)
 
 			def ok():
 				self.update_impl(element, widgets)
