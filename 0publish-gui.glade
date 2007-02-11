@@ -906,7 +906,21 @@
 	      <property name="right_margin">4</property>
 	      <property name="indent">0</property>
 	      <property name="text" translatable="yes">0publish-gui
-Thomas Leonard
+Copyright (C) 2007 Thomas Leonard
+
+INTRODUCTION
+
+By publishing an XML feed for your software on your web-site, you make it easy for people to download your programs and their dependencies, and automatically get notified of any updates you make. You can also create feeds for other peoples' programs if they don't provide one themselves.
+
+0publish-gui is a GTK-based tool for creating these feeds. It allows you to describe your application, list available versions and download locations, and specify dependencies on other libraries. It also handles adding a GPG signature to the feed, so that people can check that updates really are from you.
+
+USAGE
+
+There is a tutorial here:
+
+  http://0install.net/injector-packagers.html
+
+QUICK REFERENCE
 
 To create a feed for a new program, fill in the fields on the &quot;Feed information&quot; tab and then add at least one version using the &quot;Add Archive&quot; button in the &quot;Versions&quot; tab.
 
@@ -918,12 +932,11 @@ To try out your new interface, either run it with &quot;0launch myfile.xml&quot;
 
 To publish a feed on the web, you must also sign it. Select the key you want to use from the menu (or create a new one if needed using the 'Add' button).
 
-For more information, visit:
+For more information visit:
 
-  http://0install.net/dev.html
+  http://0install.net/injector-packagers.html
 
-
-Conditions
+CONDITIONS
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
