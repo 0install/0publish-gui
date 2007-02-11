@@ -10,6 +10,8 @@ from xmltools import *
 from zeroinstall.injector import model
 from zeroinstall.zerostore import unpack, NotStored
 
+RESPONSE_SAVE_AND_TEST = 1
+
 class ImplementationProperties:
 	def __init__(self, feed_editor, element = None, is_group = False):
 		self.feed_editor = feed_editor
@@ -129,10 +131,13 @@ class ImplementationProperties:
 			id_label.set_text('-')
 
 		def resp(dialog, r):
-			if r == g.RESPONSE_OK:
+			if r in (g.RESPONSE_OK, RESPONSE_SAVE_AND_TEST):
 				ok()
 				self.feed_editor.update_version_model()
-			dialog.destroy()
+			if r == RESPONSE_SAVE_AND_TEST:
+				self.feed_editor.save(lambda: self.test(element))
+			else:
+				dialog.destroy()
 
 		if is_group and element:
 			# Find a cached implementation for getting main
@@ -236,3 +241,20 @@ class ImplementationProperties:
 				element.setAttributeNS(XMLNS_COMPILE, 'compile:' + name, value)
 			elif element.hasAttributeNS(XMLNS_COMPILE, name):
 				element.removeAttributeNS(XMLNS_COMPILE, name)
+
+	def test(self, element):
+		version = None
+		while element:
+			if element.hasAttribute('version'):
+				version = element.getAttribute('version')
+				break
+			element = element.parentNode
+			if element.namespaceURI != XMLNS_INTERFACE:
+				break
+			if element.localName != 'group':
+				break
+		if version:
+			args = ['--not-before', version, '--before', version + '-0-pre9999']
+		else:
+			args = []
+		self.feed_editor.test(args)

@@ -414,14 +414,14 @@ class FeedEditor(loading.XDSLoader):
 				impl_tree.expand_row(path, False)
 		self.impl_model.foreach(may_expand)
 
-	def test(self):
+	def test(self, args = []):
 		child = os.fork()
 		if child == 0:
 			try:
 				try:
 					# We are the child
 					# Spawn a grandchild and exit
-					subprocess.Popen(['0launch', '--gui', self.pathname])
+					subprocess.Popen(['0launch', '--gui'] + args + [self.pathname])
 					os._exit(0)
 				except:
 					traceback.print_exc()
