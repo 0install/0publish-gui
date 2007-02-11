@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
+<?xml-stylesheet type='text/xsl' href='interface.xsl'?>
 <interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface">
   <name>0publish-gui</name>
   <summary>GTK editor for Zero Install feeds</summary>
@@ -13,7 +14,7 @@ these feeds.</description>
   <feed-for interface="http://0install.net/2007/interfaces/0publish-gui.xml"/>
   <icon href="http://0install.net/feed_icons/0publish-gui.png" type="image/png"/>
   <group license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui">
-    <implementation id="." released="Snapshot" version="0.3" version-modifier="-post"/>
+    <implementation id="." released="Snapshot" version="0.4" version-modifier="-post"/>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>
