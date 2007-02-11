@@ -135,7 +135,8 @@ class ImplementationProperties:
 				ok()
 				self.feed_editor.update_version_model()
 			if r == RESPONSE_SAVE_AND_TEST:
-				self.feed_editor.save(lambda: self.test(element))
+				is_src = bool(widgets.get_widget('source_frame').flags() & gtk.VISIBLE)
+				self.feed_editor.save(lambda: self.test(element, is_src))
 			else:
 				dialog.destroy()
 
@@ -242,7 +243,7 @@ class ImplementationProperties:
 			elif element.hasAttributeNS(XMLNS_COMPILE, name):
 				element.removeAttributeNS(XMLNS_COMPILE, name)
 
-	def test(self, element):
+	def test(self, element, compile):
 		version = None
 		while element:
 			if element.hasAttribute('version'):
@@ -253,8 +254,13 @@ class ImplementationProperties:
 				break
 			if element.localName != 'group':
 				break
-		if version:
-			args = ['--not-before', version, '--before', version + '-0-pre9999']
+
+		if compile:
+			# TODO: 0compile doesn't allow setting the version
+			self.feed_editor.test_compile([])
 		else:
-			args = []
-		self.feed_editor.test(args)
+			if version:
+				args = ['--not-before', version, '--before', version + '-0-pre9999']
+			else:
+				args = []
+			self.feed_editor.test(args)

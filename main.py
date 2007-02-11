@@ -432,6 +432,26 @@ class FeedEditor(loading.XDSLoader):
 		if status:
 			raise Exception('Failed to run 0launch - status code %d' % status)
 	
+	def test_compile(self, args = []):
+		child = os.fork()
+		if child == 0:
+			try:
+				try:
+					# We are the child
+					# Spawn a grandchild and exit
+					subprocess.Popen(['0launch',
+						'http://0install.net/2006/interfaces/0compile.xml', 'gui'] +
+						args + [self.pathname])
+					os._exit(0)
+				except:
+					traceback.print_exc()
+			finally:
+				os._exit(1)
+		pid, status = os.waitpid(child, 0)
+		assert pid == child
+		if status:
+			raise Exception('Failed to run 0compile - status code %d' % status)
+	
 	def update_doc(self):
 		root = self.doc.documentElement
 		def update(name, required = False, attrs = {}, value_attr = None):
