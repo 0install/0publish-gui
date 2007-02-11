@@ -29,7 +29,15 @@ class ImplementationProperties:
 			s = not inherit_arch.get_active()
 			widgets.get_widget('cpu').set_sensitive(s)
 			widgets.get_widget('os').set_sensitive(s)
+			if s and widgets.get_widget('cpu').get_active_text() == 'src':
+				widgets.get_widget('source_frame').show()
+			else:
+				widgets.get_widget('source_frame').hide()
+				command = widgets.get_widget('compile_command')
+				if command.get_text() == '':
+					command.set_text('"$SRCDIR/configure" --prefix="$DISTDIR" && make install')
 		inherit_arch.connect('toggled', lambda cb: shade_os_cpu())
+		widgets.get_widget('cpu').connect('changed', lambda cb: shade_os_cpu())
 
 		main_menu = widgets.get_widget('main_binary')
 
@@ -44,6 +52,9 @@ class ImplementationProperties:
 				  (element.getAttribute('version-modifier') or '')
 			widgets.get_widget('version_number').set_text(version)
 			widgets.get_widget('released').set_text(element.getAttribute('released'))
+
+			widgets.get_widget('compile_command').set_text(element.getAttributeNS(XMLNS_COMPILE, 'command'))
+			widgets.get_widget('compile_binary_main').set_text(element.getAttributeNS(XMLNS_COMPILE, 'binary-main'))
 
 			main_binary = element.getAttribute('main')
 
@@ -207,3 +218,18 @@ class ImplementationProperties:
 				element.setAttribute(name, value)
 			elif element.hasAttribute(name):
 				element.removeAttribute(name)
+
+		# Source packages
+		if widgets.get_widget('source_frame').flags() & gtk.VISIBLE:
+			compile_command = widgets.get_widget('compile_command').get_text()
+			compile_binary_main = widgets.get_widget('compile_binary_main').get_text()
+			self.feed_editor.doc.documentElement.setAttribute('xmlns:compile', XMLNS_COMPILE)
+		else:
+			compile_command = compile_binary_main = None
+
+		for name, value in [('command', compile_command),
+				    ('binary-main', compile_binary_main)]:
+			if value:
+				element.setAttributeNS(XMLNS_COMPILE, 'compile:' + name, value)
+			elif element.hasAttributeNS(XMLNS_COMPILE, name):
+				element.removeAttributeNS(XMLNS_COMPILE, name)
