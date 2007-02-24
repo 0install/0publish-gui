@@ -99,26 +99,34 @@ class AddArchiveBox:
 
 			self.tmpdir = tempfile.mkdtemp('-0publish-gui')
 			try:
-				dialog.window.set_cursor(watch)
-				gtk.gdk.flush()
+				# Must be readable to helper process running as 'zeroinst'...
+				old_umask = os.umask(0022)
 				try:
-					unpack.unpack_archive(url, file(path), self.tmpdir,
-							      type = type, start_offset = start_offset)
+					unpack_dir = os.path.join(self.tmpdir, 'unpacked')
+					os.mkdir(unpack_dir)
+
+					dialog.window.set_cursor(watch)
+					gtk.gdk.flush()
+					try:
+						unpack.unpack_archive(url, file(path), unpack_dir,
+								      type = type, start_offset = start_offset)
+					finally:
+						dialog.window.set_cursor(None)
 				finally:
-					dialog.window.set_cursor(None)
+					os.umask(old_umask)
 			except:
 				chooser.unselect_filename(path)
 				self.destroy_tmp()
 				raise
 			iter = model.append(None, ['Everything'])
-			items = os.listdir(self.tmpdir)
+			items = os.listdir(unpack_dir)
 			for f in items:
 				model.append(iter, [f])
 			tree.expand_all()
 			# Choose a sensible default
 			iter = model.get_iter_root()
 			if len(items) == 1 and \
-		           os.path.isdir(os.path.join(self.tmpdir, items[0])) and \
+		           os.path.isdir(os.path.join(unpack_dir, items[0])) and \
 			   items[0] not in ('usr', 'opt', 'bin', 'etc', 'sbin', 'doc', 'var'):
 				iter = model.iter_children(iter)
 			selection.select_iter(iter)
@@ -153,6 +161,8 @@ class AddArchiveBox:
 
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
+				unpack_dir = os.path.join(self.tmpdir, 'unpacked')
+
 				url = widgets.get_widget('archive_url').get_text()
 				if urlparse.urlparse(url)[1] == '':
 					raise Exception('Missing host name in URL "%s"' % url)
@@ -162,12 +172,12 @@ class AddArchiveBox:
 				if not local_archive:
 					raise Exception('Please select a local file')
 				if selection.iter_is_selected(model.get_iter_root()):
-					root = self.tmpdir
+					root = unpack_dir
 					extract = None
 				else:
 					_, iter = selection.get_selected()
 					extract = model[iter][0]
-					root = os.path.join(self.tmpdir, extract)
+					root = os.path.join(unpack_dir, extract)
 
 				size = os.path.getsize(local_archive)
 				if self.start_offset:
