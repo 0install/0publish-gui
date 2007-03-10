@@ -134,7 +134,11 @@ class FeedEditor(loading.XDSLoader):
 		key_model = g.ListStore(str, str)
 		key_menu.set_model(key_model)
 		cell = g.CellRendererText()
-		cell.set_property('ellipsize', pango.ELLIPSIZE_MIDDLE)
+
+		if gtk.pygtk_version >= (2, 8, 0):
+			# Crashes with pygtk 2.6.1
+			cell.set_property('ellipsize', pango.ELLIPSIZE_MIDDLE)
+
 		key_menu.pack_start(cell)
 		key_menu.add_attribute(cell, 'text', 1)
 
