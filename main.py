@@ -327,6 +327,13 @@ class FeedEditor(loading.XDSLoader):
 		set('summary')
 		set('homepage')
 
+		category_widget = self.wTree.get_widget('feed_category')
+		category = singleton_text(root, 'category')
+		if category:
+			combo_set_text(category_widget, category)
+		else:
+			category_widget.set_active(0)
+
 		uri = root.getAttribute('uri')
 		if uri:
 			self.wTree.get_widget('feed_url').set_text(uri)
@@ -465,6 +472,11 @@ class FeedEditor(loading.XDSLoader):
 				text = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
 				paras = ['\n'.join(textwrap.wrap(para, 80)) for para in text.split('\n') if para.strip()]
 				value = '\n' + '\n\n'.join(paras)
+			elif isinstance(widget, g.ComboBox):
+				if widget.get_active() == 0:
+					value = None
+				else:
+					value = widget.get_active_text()
 			else:
 				value = widget.get_text()
 			elems = list(children(root, name, attrs = attrs))
@@ -491,6 +503,7 @@ class FeedEditor(loading.XDSLoader):
 		update('summary', True)
 		update('description', True)
 		update('homepage')
+		update('category')
 		update('icon', attrs = {'type': 'image/png'}, value_attr = 'href')
 
 		uri = self.wTree.get_widget('feed_url').get_text()

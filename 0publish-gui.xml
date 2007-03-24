@@ -13,6 +13,7 @@ these feeds.</description>
   <homepage>http://0install.net/</homepage>
   <feed-for interface="http://0install.net/2007/interfaces/0publish-gui.xml"/>
   <icon href="http://0install.net/feed_icons/0publish-gui.png" type="image/png"/>
+  <category>Development</category>
   <group license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui">
     <implementation id="." released="Snapshot" version="0.5" version-modifier="-post"/>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
