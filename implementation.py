@@ -163,7 +163,7 @@ class ImplementationProperties:
 				i = 0
 				for (dirpath, dirnames, filenames) in os.walk(cached_impl):
 					for file in filenames:
-						info = os.stat(os.path.join(dirpath, file))
+						info = os.lstat(os.path.join(dirpath, file))
 						if info.st_mode & 0111:
 							relbasedir = dirpath[len(cached_impl) + 1:]
 							new = os.path.join(relbasedir, file)
