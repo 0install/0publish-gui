@@ -150,7 +150,7 @@ class ImplementationProperties:
 							break
 					except NotStored, ex:
 						pass
-		if id:
+		if id and (element or id != '.'):
 			# Find possible main settings, if possible
 			if id.startswith('/') or id.startswith('.'):
 				cached_impl = os.path.abspath(os.path.join(os.path.dirname(feed_editor.pathname), id))
