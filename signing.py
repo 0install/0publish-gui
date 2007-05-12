@@ -18,6 +18,10 @@ class LineBuffer:
 			command, self.data = self.data.split('\n', 1)
 			yield command
 
+def _io_callback(src, cond, blocker):
+	blocker.trigger()
+	return False
+
 # (version in ROX-Lib < 2.0.4 is buggy; missing IO_HUP)
 class InputBlocker(tasks.Blocker):
 	"""Triggers when os.read(stream) would not block."""
@@ -31,7 +35,7 @@ class InputBlocker(tasks.Blocker):
 		tasks.Blocker.add_task(self, task)
 		if self._tag is None:
 			self._tag = gobject.io_add_watch(self._stream, gobject.IO_IN | gobject.IO_HUP,
-				lambda src, cond: self.trigger())
+				_io_callback, self)
 	
 	def remove_task(self, task):
 		tasks.Blocker.remove_task(self, task)
