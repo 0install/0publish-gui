@@ -124,6 +124,7 @@ def sign_xml(path, data, key, callback):
 		child = subprocess.Popen(('gpg', '--default-key', key,
 					  '--detach-sign', '--status-fd', str(w),
 					  '--command-fd', '0',
+					  '--no-tty',
 					  '-q',
 					  tmp),
 					 preexec_fn = setup_child,
