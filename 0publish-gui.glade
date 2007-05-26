@@ -2281,6 +2281,61 @@ Zope Public License (ZPL)
 		</widget>
 		<packing>
 		  <property name="left_attach">1</property>
+		  <property name="right_attach">2</property>
+		  <property name="top_attach">5</property>
+		  <property name="bottom_attach">6</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options">fill</property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkLabel" id="label72">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Docs</property>
+		  <property name="use_underline">False</property>
+		  <property name="use_markup">False</property>
+		  <property name="justify">GTK_JUSTIFY_LEFT</property>
+		  <property name="wrap">False</property>
+		  <property name="selectable">False</property>
+		  <property name="xalign">1</property>
+		  <property name="yalign">0.5</property>
+		  <property name="xpad">0</property>
+		  <property name="ypad">0</property>
+		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		  <property name="width_chars">-1</property>
+		  <property name="single_line_mode">False</property>
+		  <property name="angle">0</property>
+		</widget>
+		<packing>
+		  <property name="left_attach">2</property>
+		  <property name="right_attach">3</property>
+		  <property name="top_attach">5</property>
+		  <property name="bottom_attach">6</property>
+		  <property name="x_options">fill</property>
+		  <property name="y_options"></property>
+		</packing>
+	      </child>
+
+	      <child>
+		<widget class="GtkEventBox" id="eventbox7">
+		  <property name="visible">True</property>
+		  <property name="tooltip" translatable="yes">The relative path of a directory in the package containing the main documentation files. This is the directory that would go in /usr/share/docs on Debian, for example.</property>
+		  <property name="visible_window">True</property>
+		  <property name="above_child">False</property>
+
+		  <child>
+		    <widget class="GtkComboBoxEntry" id="doc_dir">
+		      <property name="visible">True</property>
+		      <property name="items" translatable="yes"></property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="has_frame">True</property>
+		      <property name="focus_on_click">True</property>
+		    </widget>
+		  </child>
+		</widget>
+		<packing>
+		  <property name="left_attach">3</property>
 		  <property name="right_attach">4</property>
 		  <property name="top_attach">5</property>
 		  <property name="bottom_attach">6</property>

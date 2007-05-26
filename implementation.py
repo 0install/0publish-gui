@@ -42,6 +42,7 @@ class ImplementationProperties:
 		widgets.get_widget('cpu').connect('changed', lambda cb: shade_os_cpu())
 
 		main_menu = widgets.get_widget('main_binary')
+		doc_menu = widgets.get_widget('doc_dir')
 
 		if element:
 			if element.localName == 'group':
@@ -59,6 +60,7 @@ class ImplementationProperties:
 			widgets.get_widget('compile_binary_main').set_text(element.getAttributeNS(XMLNS_COMPILE, 'binary-main'))
 
 			main_binary = element.getAttribute('main')
+			doc_dir = element.getAttribute('doc-dir')
 
 			stability_menu = widgets.get_widget('stability')
 			stability = element.getAttribute('stability')
@@ -100,6 +102,7 @@ class ImplementationProperties:
 			widgets.get_widget('os').set_active(0)
 			widgets.get_widget('stability').set_active(0)
 			main_binary = None
+			doc_dir = None
 
 			def ok():
 				if is_group:
@@ -160,16 +163,20 @@ class ImplementationProperties:
 				except NotStored, ex:
 					cached_impl = None
 			if cached_impl:
-				i = 0
 				for (dirpath, dirnames, filenames) in os.walk(cached_impl):
+					relbasedir = dirpath[len(cached_impl) + 1:]
 					for file in filenames:
 						info = os.lstat(os.path.join(dirpath, file))
 						if info.st_mode & 0111:
-							relbasedir = dirpath[len(cached_impl) + 1:]
 							new = os.path.join(relbasedir, file)
 							main_menu.append_text(new)
-							i += 1
+					for d in dirnames[:]:
+						if d.startswith('.'):
+							dirnames.remove(d)
+						else:
+							doc_menu.append_text(os.path.join(relbasedir, d))
 		main.combo_set_text(main_menu, main_binary)
+		main.combo_set_text(doc_menu, doc_dir)
 
 		dialog = widgets.get_widget('version')
 		dialog.connect('response', resp)
@@ -199,6 +206,7 @@ class ImplementationProperties:
 			arch = os + '-' + cpu
 
 		main = widgets.get_widget('main_binary').get_active_text()
+		docs = widgets.get_widget('doc_dir').get_active_text()
 
 		old_id = element.getAttribute('id')
 		if old_id.startswith('/') or old_id.startswith('.'):
@@ -220,6 +228,7 @@ class ImplementationProperties:
 			            ('version-modifier', version_modifier),
 			            ('arch', arch),
 			            ('main', main),
+			            ('doc-dir', docs),
 			            ('released', released),
 			            ('license', license),
 			            ('stability', stability)]:
