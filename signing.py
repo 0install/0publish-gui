@@ -120,11 +120,13 @@ def sign_xml(path, data, key, callback):
 			os.close(r)
 
 		tmp = write_tmp(path, data)
+		sigtmp = tmp + '.sig'
 
 		child = subprocess.Popen(('gpg', '--default-key', key,
 					  '--detach-sign', '--status-fd', str(w),
 					  '--command-fd', '0',
 					  '--no-tty',
+					  '--output', sigtmp,
 					  '-q',
 					  tmp),
 					 preexec_fn = setup_child,
@@ -165,9 +167,8 @@ def sign_xml(path, data, key, callback):
 	if killed: return
 	if error: raise
 
-	tmp += '.sig'
-	encoded = base64.encodestring(file(tmp).read())
-	os.unlink(tmp)
+	encoded = base64.encodestring(file(sigtmp).read())
+	os.unlink(sigtmp)
 	sig = "<!-- Base64 Signature\n" + encoded + "\n-->\n"
 	os.rename(write_tmp(path, data + sig), path)
 
