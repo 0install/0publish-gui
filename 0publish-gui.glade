@@ -3256,34 +3256,6 @@ application/zip
 			  </child>
 
 			  <child>
-			    <widget class="GtkLabel" id="label53">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">Path:</property>
-			      <property name="use_underline">False</property>
-			      <property name="use_markup">False</property>
-			      <property name="justify">GTK_JUSTIFY_LEFT</property>
-			      <property name="wrap">False</property>
-			      <property name="selectable">False</property>
-			      <property name="xalign">1</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			      <property name="width_chars">-1</property>
-			      <property name="single_line_mode">False</property>
-			      <property name="angle">0</property>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">0</property>
-			      <property name="right_attach">1</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			      <property name="x_options">fill</property>
-			      <property name="y_options"></property>
-			    </packing>
-			  </child>
-
-			  <child>
 			    <widget class="GtkLabel" id="label54">
 			      <property name="visible">True</property>
 			      <property name="label" translatable="yes">Default:</property>
@@ -3307,28 +3279,6 @@ application/zip
 			      <property name="top_attach">2</property>
 			      <property name="bottom_attach">3</property>
 			      <property name="x_options">fill</property>
-			      <property name="y_options"></property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEntry" id="env_default">
-			      <property name="visible">True</property>
-			      <property name="tooltip" translatable="yes">If the environment variable didn't already have a value, assume it was set to this. Use this for variables which have a special meaning when not set.</property>
-			      <property name="can_focus">True</property>
-			      <property name="editable">True</property>
-			      <property name="visibility">True</property>
-			      <property name="max_length">0</property>
-			      <property name="text" translatable="yes"></property>
-			      <property name="has_frame">True</property>
-			      <property name="invisible_char">*</property>
-			      <property name="activates_default">False</property>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">3</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
 			      <property name="y_options"></property>
 			    </packing>
 			  </child>
@@ -3415,6 +3365,56 @@ XDG_DATA_DIRS</property>
 			      <property name="right_attach">3</property>
 			      <property name="top_attach">1</property>
 			      <property name="bottom_attach">2</property>
+			      <property name="y_options">fill</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkEntry" id="env_default">
+			      <property name="visible">True</property>
+			      <property name="tooltip" translatable="yes">If the environment variable didn't already have a value, assume it was set to this. Use this for variables which have a special meaning when not set.</property>
+			      <property name="can_focus">True</property>
+			      <property name="editable">True</property>
+			      <property name="visibility">True</property>
+			      <property name="max_length">0</property>
+			      <property name="text" translatable="yes"></property>
+			      <property name="has_frame">True</property>
+			      <property name="invisible_char">*</property>
+			      <property name="activates_default">False</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">3</property>
+			      <property name="top_attach">2</property>
+			      <property name="bottom_attach">3</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkEventBox" id="eventbox8">
+			      <property name="visible">True</property>
+			      <property name="tooltip" translatable="yes">If the environment variable is a list (e.g. $PATH) then you should Prepend the selected item to the list. If the variable is a single item, then use Replace instead.</property>
+			      <property name="visible_window">True</property>
+			      <property name="above_child">False</property>
+
+			      <child>
+				<widget class="GtkComboBox" id="env_mode">
+				  <property name="visible">True</property>
+				  <property name="items" translatable="yes">Prepend
+Append
+Replace</property>
+				  <property name="add_tearoffs">False</property>
+				  <property name="focus_on_click">True</property>
+				</widget>
+			      </child>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">1</property>
+			      <property name="bottom_attach">2</property>
+			      <property name="x_options">fill</property>
 			      <property name="y_options">fill</property>
 			    </packing>
 			  </child>

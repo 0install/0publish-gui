@@ -31,6 +31,12 @@ class Requires:
 		self.version_element = None	# Last <version> child
 		self.env_element = None		# Last <environment> child
 
+		env_combo = self.widgets.get_widget('env_mode')
+		main.combo_set_text(env_combo, 'Prepend')
+		def mode_changed(combo):
+			self.widgets.get_widget('env_default').set_sensitive(env_combo.get_active_text() != 'Replace')
+		env_combo.connect('changed', mode_changed)
+
 		if element:
 			main.combo_set_text(uri, element.getAttribute('interface'))
 
@@ -48,6 +54,8 @@ class Requires:
 				for x in ['name', 'insert']:
 					main.combo_set_text(self.widgets.get_widget('env_' + x), self.env_element.getAttribute(x))
 				self.widgets.get_widget('env_default').set_text(self.env_element.getAttribute('default') or '')
+				main.combo_set_text(env_combo,
+						    self.env_element.getAttribute('mode').capitalize() or 'Prepend')
 
 			def ok():
 				self.update_element(element, self.widgets)
@@ -62,6 +70,7 @@ class Requires:
 				self.feed_editor.update_version_model()
 			dialog.destroy()
 
+		mode_changed(env_combo)
 		dialog = self.widgets.get_widget('requires')
 		dialog.connect('response', resp)
 	
@@ -114,6 +123,7 @@ class Requires:
 
 		env_name = widgets.get_widget('env_name').get_active_text()
 		env_insert = widgets.get_widget('env_insert').get_active_text()
+		env_mode = widgets.get_widget('env_mode').get_active_text().lower()
 		env_default = widgets.get_widget('env_default').get_text()
 
 		if env_name:
@@ -121,6 +131,7 @@ class Requires:
 				self.env_element = create_element(element, 'environment')
 			self.env_element.setAttribute('name', env_name)
 			self.env_element.setAttribute('insert', env_insert)
+			self.env_element.setAttribute('mode', env_mode)
 			set_or_remove(self.env_element, 'default', env_default)
 		elif env_insert or env_default:
 			raise Exception('Missing environment variable name!')
