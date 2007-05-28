@@ -327,6 +327,9 @@ class FeedEditor(loading.XDSLoader):
 		set('summary')
 		set('homepage')
 
+		needs_terminal = len(list(children(root, 'needs-terminal'))) > 0
+		self.wTree.get_widget('feed_needs_terminal').set_active(needs_terminal)
+
 		category_widget = self.wTree.get_widget('feed_category')
 		category = singleton_text(root, 'category')
 		if category:
@@ -466,7 +469,7 @@ class FeedEditor(loading.XDSLoader):
 	def update_doc(self):
 		root = self.doc.documentElement
 		def update(name, required = False, attrs = {}, value_attr = None):
-			widget = self.wTree.get_widget('feed_' + name)
+			widget = self.wTree.get_widget('feed_' + name.replace('-', '_'))
 			if isinstance(widget, g.TextView):
 				buffer = widget.get_buffer()
 				text = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
@@ -477,6 +480,8 @@ class FeedEditor(loading.XDSLoader):
 					value = None
 				else:
 					value = widget.get_active_text()
+			elif isinstance(widget, g.ToggleButton):
+				value = widget.get_active()
 			else:
 				value = widget.get_text()
 			elems = list(children(root, name, attrs = attrs))
@@ -489,9 +494,13 @@ class FeedEditor(loading.XDSLoader):
 					for x in attrs:
 						elem.setAttribute(x, attrs[x])
 				if value_attr:
+					# Set attribute
 					elem.setAttribute(value_attr, value)
 					set_data(elem, None)
+				elif isinstance(widget, g.ToggleButton):
+					pass
 				else:
+					# Set content
 					set_data(elem, value)
 			else:
 				if required:
@@ -504,6 +513,7 @@ class FeedEditor(loading.XDSLoader):
 		update('description', True)
 		update('homepage')
 		update('category')
+		update('needs-terminal')
 		update('icon', attrs = {'type': 'image/png'}, value_attr = 'href')
 
 		uri = self.wTree.get_widget('feed_url').get_text()
