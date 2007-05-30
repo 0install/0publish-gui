@@ -102,6 +102,7 @@ def list_attrs(element):
 emptyFeed = """<?xml version='1.0'?>
 <interface xmlns="%s">
   <name>Name</name>
+  <group/>
 </interface>
 """ % (XMLNS_INTERFACE)
 
@@ -176,10 +177,12 @@ class FeedEditor(loading.XDSLoader):
 			default_name = os.path.basename(self.pathname)
 			if default_name.endswith('.xml'):
 				default_name = default_name[:-4]
-			self.wTree.get_widget('feed_name').set_text(default_name)
 			self.doc = minidom.parseString(emptyFeed)
 			self.key = None
 			key_menu.set_active(0)
+
+			self.update_fields()
+			self.wTree.get_widget('feed_name').set_text(default_name)
 
 		root = self.impl_model.get_iter_root()
 		if root:
