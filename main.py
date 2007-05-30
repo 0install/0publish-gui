@@ -34,6 +34,13 @@ def available_in_path(prog):
 			return True
 	return False
 
+def get_terminal_emulator():
+	terminal_emulators = ['x-terminal-emulator', 'xterm', 'konsole']
+	for xterm in terminal_emulators:
+		if available_in_path(xterm):
+			return xterm
+	return 'xterm'		# Hope
+
 def choose_feed():
 	tree = gtk.glade.XML(gladefile, 'no_file_specified')
 	box = tree.get_widget('no_file_specified')
@@ -435,7 +442,10 @@ class FeedEditor(loading.XDSLoader):
 				try:
 					# We are the child
 					# Spawn a grandchild and exit
-					subprocess.Popen(['0launch', '--gui'] + args + [self.pathname])
+					command = ['0launch', '--gui'] + args + [self.pathname]
+					if self.wTree.get_widget('feed_needs_terminal').get_active():
+						command = [get_terminal_emulator(), '-e'] + command
+					subprocess.Popen(command)
 					os._exit(0)
 				except:
 					traceback.print_exc()
