@@ -7,7 +7,6 @@ import gobject
 
 umask = os.umask(0)
 os.umask(umask)
-print umask
 
 class LineBuffer:
 	def __init__(self):
