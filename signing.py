@@ -5,6 +5,10 @@ import subprocess
 from rox import tasks, g
 import gobject
 
+umask = os.umask(0)
+os.umask(umask)
+print umask
+
 class LineBuffer:
 	def __init__(self):
 		self.data = ''
@@ -88,6 +92,7 @@ def write_tmp(path, data):
 	stream = os.fdopen(fd, 'w')
 	stream.write(data)
 	stream.close()
+	os.chmod(tmp, 0644 &~umask)
 	return tmp
 
 def run_gpg(default_key, *arguments):
