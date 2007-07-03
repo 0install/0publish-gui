@@ -351,6 +351,9 @@ class FeedEditor(loading.XDSLoader):
 		if uri:
 			self.wTree.get_widget('feed_url').set_text(uri)
 
+		for feed_for in children(root, 'feed-for'):
+			self.wTree.get_widget('feed_feed_for').set_text(feed_for.getAttribute('interface'))
+
 		for icon in children(root, 'icon'):
 			if icon.getAttribute('type') == 'image/png':
 				href = icon.getAttribute('href')
@@ -526,6 +529,7 @@ class FeedEditor(loading.XDSLoader):
 		update('description', True)
 		update('homepage')
 		update('category')
+		update('feed-for', value_attr = 'interface')
 		update('needs-terminal')
 		update('icon', attrs = {'type': 'image/png'}, value_attr = 'href')
 
