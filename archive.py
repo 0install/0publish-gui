@@ -155,12 +155,15 @@ class AddArchiveBox:
 			if resp != g.RESPONSE_OK:
 				return
 
-			DownloadBox(url, filename, local_archive_button)
+			DownloadBox(url, filename, local_archive_button, dialog)
 
 		widgets.get_widget('download').connect('clicked', download)
 
 		def resp(dialog, r):
 			if r == g.RESPONSE_OK:
+				if not self.tmpdir:
+					rox.alert("Archive not downloaded yet!")
+					return
 				unpack_dir = os.path.join(self.tmpdir, 'unpacked')
 
 				url = widgets.get_widget('archive_url').get_text()
@@ -265,13 +268,14 @@ class AddArchiveBox:
 			self.feed_editor.edit_properties(element = impl_element)
 
 class DownloadBox:
-	def __init__(self, url, path, archive_button):
+	def __init__(self, url, path, archive_button, parent):
 		widgets = gtk.glade.XML(main.gladefile, 'download')
 		gtk.gdk.flush()
 
 		output = file(path, 'w')
 
 		dialog = widgets.get_widget('download')
+		dialog.set_transient_for(parent)
 		progress = widgets.get_widget('progress')
 		
 		cancelled = tasks.Blocker()
@@ -316,4 +320,5 @@ class DownloadBox:
 				cleanup()
 				archive_button.set_filename(path)
 
+		dialog.show()
 		tasks.Task(download())
