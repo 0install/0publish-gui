@@ -8,7 +8,7 @@ except ImportError:
 	coverage = None
 
 my_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-assert my_dir
+os.chdir(my_dir)
 
 sys.argv.append('-v')
 
