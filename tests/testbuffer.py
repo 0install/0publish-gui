@@ -27,6 +27,7 @@ class TestBuffer(unittest.TestCase):
 		assert list(buffer) == []
 		assert list(buffer) == []
 	
+suite = unittest.makeSuite(TestBuffer)
 if __name__ == '__main__':
 	sys.argv.append('-v')
 	unittest.main()

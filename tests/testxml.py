@@ -75,6 +75,7 @@ class TestXML(unittest.TestCase):
 		if expected_xml != actual_xml:
 			raise AssertionError("Expected:\n%s\nGot:\n%s\n" % (expected_xml, actual_xml))
 	
+suite = unittest.makeSuite(TestXML)
 if __name__ == '__main__':
 	sys.argv.append('-v')
 	unittest.main()
