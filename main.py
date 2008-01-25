@@ -17,7 +17,8 @@ RESPONSE_SAVE = 0
 RESPONSE_SAVE_AND_TEST = 1
 
 xml_header = """<?xml version="1.0" ?>
-<?xml-stylesheet type='text/xsl' href='interface.xsl'?>
+"""
+xml_stylesheet_header = """<?xml-stylesheet type='text/xsl' href='interface.xsl'?>
 """
 
 gladefile = os.path.join(rox.app_dir, '0publish-gui.glade')
@@ -559,13 +560,15 @@ class FeedEditor(loading.XDSLoader):
 				"This allows people to check the signature on your feed." % exported)
 	
 	def save(self, callback = None):
+		data = xml_header
 		self.update_doc()
 		if self.key:
 			sign = signing.sign_xml
 			self.export_stylesheet_and_key()
+			data += xml_stylesheet_header
 		else:
 			sign = signing.sign_unsigned
-		data = xml_header + self.doc.documentElement.toxml() + '\n'
+		data += self.doc.documentElement.toxml() + '\n'
 
 		gen = sign(self.pathname, data, self.key, callback)
 		# May require interaction to get the pass-phrase, so run in the background...
