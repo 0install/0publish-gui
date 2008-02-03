@@ -8,7 +8,7 @@ from rox import g
 
 from zeroinstall.zerostore import NotStored
 from zeroinstall.injector import model
-from zeroinstall.injector.policy import Policy
+from zeroinstall.injector.iface_cache import iface_cache
 
 class Requires:
 	def __init__(self, feed_editor, parent, element = None):
@@ -81,10 +81,8 @@ class Requires:
 		uri = combo.get_active_text()
 		if uri not in self.known_ifaces: return
 
-		policy = Policy(uri)
-		policy.network_use = model.network_offline
-		policy.freshness = 0
-		impls = policy.get_ranked_implementations(policy.get_interface(uri))
+		impls = iface_cache.get_interface(uri).implementations.values()
+		impls.sort()
 
 		for impl in impls:
 			if impl.id.startswith('/'):
