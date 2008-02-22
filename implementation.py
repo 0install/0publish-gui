@@ -70,6 +70,7 @@ class ImplementationProperties:
 
 			widgets.get_widget('compile_command').set_text(element.getAttributeNS(XMLNS_COMPILE, 'command'))
 			widgets.get_widget('compile_binary_main').set_text(element.getAttributeNS(XMLNS_COMPILE, 'binary-main'))
+			widgets.get_widget('compile_binary_lib_mappings').set_text(element.getAttributeNS(XMLNS_COMPILE, 'binary-lib-mappings'))
 
 			main_binary = element.getAttribute('main')
 			doc_dir = element.getAttribute('doc-dir')
@@ -253,12 +254,14 @@ class ImplementationProperties:
 		if widgets.get_widget('source_frame').flags() & gtk.VISIBLE:
 			compile_command = widgets.get_widget('compile_command').get_text()
 			compile_binary_main = widgets.get_widget('compile_binary_main').get_text()
+			compile_binary_lib_mappings = widgets.get_widget('compile_binary_lib_mappings').get_text()
 			self.feed_editor.doc.documentElement.setAttribute('xmlns:compile', XMLNS_COMPILE)
 		else:
-			compile_command = compile_binary_main = None
+			compile_command = compile_binary_main = compile_binary_lib_mappings = None
 
 		for name, value in [('command', compile_command),
-				    ('binary-main', compile_binary_main)]:
+				    ('binary-main', compile_binary_main),
+				    ('binary-lib-mappings', compile_binary_lib_mappings)]:
 			if value:
 				element.setAttributeNS(XMLNS_COMPILE, 'compile:' + name, value)
 			elif element.hasAttributeNS(XMLNS_COMPILE, name):
