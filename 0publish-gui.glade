@@ -3448,9 +3448,10 @@ application/zip
 			      <child>
 				<widget class="GtkComboBoxEntry" id="env_name">
 				  <property name="visible">True</property>
-				  <property name="items" translatable="yes">PATH
+				  <property name="items" translatable="yes">LD_LIBRARY_PATH
+PATH
+PKG_CONFIG_PATH
 PYTHONPATH
-LD_LIBRARY_PATH
 XDG_CONFIG_DIRS
 XDG_DATA_DIRS</property>
 				  <property name="add_tearoffs">False</property>
