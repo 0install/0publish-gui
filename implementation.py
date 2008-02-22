@@ -31,7 +31,19 @@ class ImplementationProperties:
 			s = not inherit_arch.get_active()
 			widgets.get_widget('cpu').set_sensitive(s)
 			widgets.get_widget('os').set_sensitive(s)
-			if s and widgets.get_widget('cpu').get_active_text() == 'src':
+			if s:
+				cpu = widgets.get_widget('cpu').get_active_text()
+			else:
+				cpu = None
+				if element:
+					parent = element.parentNode
+					while parent.nodeType == Node.ELEMENT_NODE and not cpu:
+						arch = parent.getAttribute('arch')
+						if arch and '-' in arch:
+							cpu = arch.split('-')[1]
+						parent = parent.parentNode
+					
+			if cpu == 'src':
 				widgets.get_widget('source_frame').show()
 			else:
 				widgets.get_widget('source_frame').hide()
