@@ -91,7 +91,7 @@ def list_attrs(element):
 		if attr.name in ['id', 'version-modifier']: continue
 		if element.localName == 'implementation' and attr.name == 'version': continue
 
-		if attr.name == 'stability':
+		if attr.name in ('stability', 'arch'):
 			names.append(attr.value)
 		else:
 			names.append(attr.name)
