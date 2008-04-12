@@ -67,26 +67,64 @@
 	</dd>
 
 	  <xsl:apply-templates mode='dl' select='*|@*'/>
+
 	<dt>Available versions</dt>
 	<dd>
-	<p>The list below is just for information; Zero Install will automatically download one of
-	these versions for you.
-	</p>
-	<table>
-	  <tr><th>Version</th><th>Released</th><th>Stability</th><th>Download</th></tr>
-	  <xsl:for-each select='//zi:implementation'>
-	   <tr>
-	    <td><xsl:value-of select='(ancestor-or-self::*[@version])[last()]/@version'/></td>
-	    <td><xsl:value-of select='(ancestor-or-self::*[@released])[last()]/@released'/></td>
-	    <td><xsl:value-of select='(ancestor-or-self::*[@stability])[last()]/@stability'/></td>
-	    <td>
-	     <xsl:for-each select='.//zi:archive'>
-	      <a href='{@href}'>Download</a> (<xsl:value-of select='@size'/> bytes)
-	     </xsl:for-each>
-	    </td>
-	   </tr>
-	  </xsl:for-each>
-	</table>
+	  <xsl:choose>
+	    <xsl:when test='//zi:implementation'>
+	      <p>The list below is just for information; Zero Install will automatically download one of
+	      these versions for you.
+	      </p>
+	      <table>
+	       <tr><th>Version</th><th>Released</th><th>Stability</th><th>Platform</th><th>Download</th></tr>
+	       <xsl:for-each select='//zi:implementation'>
+	        <tr>
+	         <td><xsl:value-of select='(ancestor-or-self::*[@version])[last()]/@version'/></td>
+	         <td><xsl:value-of select='(ancestor-or-self::*[@released])[last()]/@released'/></td>
+	         <td><xsl:value-of select='(ancestor-or-self::*[@stability])[last()]/@stability'/></td>
+	         <td>
+	          <xsl:variable name='arch' select='(ancestor-or-self::*[@arch])[last()]/@arch'/>
+	          <xsl:choose>
+	            <xsl:when test='$arch = "*-src"'>Source code</xsl:when>
+	            <xsl:when test='not($arch)'>Any</xsl:when>
+	            <xsl:otherwise><xsl:value-of select='$arch'/></xsl:otherwise>
+	          </xsl:choose>
+	         </td>
+	         <td>
+	          <xsl:for-each select='.//zi:archive'>
+	           <a href='{@href}'>Download</a> (<xsl:value-of select='@size'/> bytes)
+	          </xsl:for-each>
+	         </td>
+	        </tr>
+	       </xsl:for-each>
+	      </table>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <p>No versions are available for downlad.</p>
+	    </xsl:otherwise>
+	  </xsl:choose>
+	</dd>
+
+	<dt>Required libraries</dt>
+	<dd>
+	 <xsl:choose>
+	   <xsl:when test='//zi:requires'>
+	     <p>The list below is just for information; Zero Install will automatically download any required
+	     libraries for you.
+	     </p>
+	      <ul>
+	       <xsl:for-each select='//zi:requires'>
+	         <xsl:variable name='interface' select='@interface'/>
+		 <xsl:if test='not(preceding::zi:requires[@interface = $interface])'>
+	           <li><a><xsl:attribute name='href'><xsl:value-of select='$interface'/></xsl:attribute><xsl:value-of select='$interface'/></a></li>
+		 </xsl:if>
+	       </xsl:for-each>
+	      </ul>
+	    </xsl:when>
+	    <xsl:otherwise>
+	      <p>This feed does not list any additional requirements.</p>
+	    </xsl:otherwise>
+	  </xsl:choose>
 	</dd>
 	</dl>
        </div>
