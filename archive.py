@@ -39,8 +39,8 @@ def autopackage_get_details(package):
 def try_parse_version(version_str):
 	try:
 		return model.parse_version(version_str)
-	except SafeException, ex:
-		warn("Bad version", ex)
+	except model.SafeException, ex:
+		warn("Bad version number '%s'", ex)
 		return None
 
 class AddArchiveBox:
