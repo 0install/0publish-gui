@@ -71,7 +71,8 @@ class TestXML(unittest.TestCase):
 		self.assertXML(doc_a)
 
 	def assertXML(self, expected_xml):
-		actual_xml = self.doc.toxml()
+		# Some Python versions don't include a newline after the decl
+		actual_xml = '<?xml version="1.0" ?>\n' + self.doc.documentElement.toxml()
 		if expected_xml != actual_xml:
 			raise AssertionError("Expected:\n%s\nGot:\n%s\n" % (expected_xml, actual_xml))
 	
