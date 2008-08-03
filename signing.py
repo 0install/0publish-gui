@@ -60,6 +60,8 @@ def get_secret_keys():
 			keys.append([None, line[9]])
 		elif line[0] == 'fpr':
 			keys[-1][0] = line[9]
+		elif line[0] == 'uid':
+			keys.append([keys[-1][0], line[9]])
 	return keys
 
 def check_signature(path):
@@ -145,6 +147,7 @@ def sign_xml(path, data, key, callback):
 			if not msg: break
 			buffer.add(msg)
 			for command in buffer:
+				print command
 				if command.startswith('[GNUPG:] NEED_PASSPHRASE '):
 					entry.set_text('')
 					box.present()
