@@ -53,15 +53,28 @@ def get_secret_keys():
 	status = child.wait()
 	if status:
 		raise Exception("GPG failed with exit code %d" % status)
+	# First, collect fingerprints for available secret keys
 	keys = []
 	for line in stdout.split('\n'):
 		line = line.split(':')
-		if line[0] == 'sec':
-			keys.append([None, line[9]])
-		elif line[0] == 'fpr':
-			keys[-1][0] = line[9]
-		elif line[0] == 'uid':
-			keys.append([keys[-1][0], line[9]])
+		if line[0] == 'fpr':
+			keys.append([line[9], None])
+	# When listing secret keys, the identity show may not be the primary identity as selected by
+	# the user or shown when verifying a signature. However, the primary identity can be obtained
+	# by listing the accompanying public key.
+	for key in keys:
+		child = subprocess.Popen(('gpg', '--list-keys', '--with-colons', 
+					'--fingerprint', key[0]),
+					 stdout = subprocess.PIPE)
+		stdout, _ = child.communicate()
+		status = child.wait()
+		if status:
+			raise Exception("GPG failed with exit code %d" % status)
+		for line in stdout.split('\n'):
+			line = line.split(':')
+			if line[0] == 'pub':
+				key[1] = line[9]
+				break
 	return keys
 
 def check_signature(path):
