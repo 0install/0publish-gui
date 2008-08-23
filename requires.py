@@ -87,6 +87,8 @@ class Requires:
 		for impl in impls:
 			if impl.id.startswith('/'):
 				cached_impl = impl.id
+			elif impl.id.startswith('package:'):
+				cached_impl = None
 			else:
 				try:
 					cached_impl = main.stores.lookup(impl.id)
