@@ -141,7 +141,7 @@ def sign_xml(path, data, key, callback):
 		tmp = write_tmp(path, data)
 		sigtmp = tmp + '.sig'
 
-		hasAgent = os.environ["GPG_AGENT_INFO"]
+		agent_info = os.environ.get("GPG_AGENT_INFO", None)
 		child = subprocess.Popen(('gpg', '--default-key', key,
 					  '--detach-sign', '--status-fd', str(w),
 					  '--command-fd', '0',
@@ -162,7 +162,7 @@ def sign_xml(path, data, key, callback):
 			if not msg: break
 			buffer.add(msg)
 			for command in buffer:
-				if command.startswith('[GNUPG:] NEED_PASSPHRASE ') and not hasAgent:
+				if command.startswith('[GNUPG:] NEED_PASSPHRASE ') and not agent_info:
 					entry.set_text('')
 					box.present()
 					resp = box.run()
