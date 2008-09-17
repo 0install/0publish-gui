@@ -62,19 +62,9 @@ def get_secret_keys():
 	# When listing secret keys, the identity show may not be the primary identity as selected by
 	# the user or shown when verifying a signature. However, the primary identity can be obtained
 	# by listing the accompanying public key.
+	loaded_keys = gpg.load_keys([k[0] for k in keys])
 	for key in keys:
-		child = subprocess.Popen(('gpg', '--list-keys', '--with-colons', 
-					'--fingerprint', key[0]),
-					 stdout = subprocess.PIPE)
-		stdout, _ = child.communicate()
-		status = child.wait()
-		if status:
-			raise Exception("GPG failed with exit code %d" % status)
-		for line in stdout.split('\n'):
-			line = line.split(':')
-			if line[0] == 'pub':
-				key[1] = line[9]
-				break
+		key[1] = loaded_keys[key[0]].name
 	return keys
 
 def check_signature(path):
