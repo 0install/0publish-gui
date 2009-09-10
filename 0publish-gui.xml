@@ -19,7 +19,7 @@ these feeds.</description>
   <icon href="http://0install.net/feed_icons/0publish-gui.png" type="image/png"/>
   <category>Development</category>
   <group license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui">
-    <implementation id="." released="2009-09-10" version="0.10"/>
+    <implementation id="." version="0.10-post"/>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>
