@@ -176,18 +176,24 @@ class ImplementationProperties:
 				except NotStored, ex:
 					cached_impl = None
 			if cached_impl:
+				possible_mains = []
+				possible_docs = []
 				for (dirpath, dirnames, filenames) in os.walk(cached_impl):
 					relbasedir = dirpath[len(cached_impl) + 1:]
 					for file in filenames:
 						info = os.lstat(os.path.join(dirpath, file))
 						if info.st_mode & 0111:
 							new = os.path.join(relbasedir, file)
-							main_menu.append_text(new)
+							possible_mains.append(new)
 					for d in dirnames[:]:
 						if d.startswith('.'):
 							dirnames.remove(d)
 						else:
-							doc_menu.append_text(os.path.join(relbasedir, d))
+							possible_docs.append(os.path.join(relbasedir, d))
+				for option in sorted(possible_mains):
+					main_menu.append_text(option)
+				for option in sorted(possible_docs):
+					doc_menu.append_text(option)
 		main.combo_set_text(main_menu, main_binary)
 		main.combo_set_text(doc_menu, doc_dir)
 
