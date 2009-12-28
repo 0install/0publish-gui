@@ -239,9 +239,10 @@ class ImplementationProperties:
 		version_modifier = None
 		if version:
 			model.parse_version(version)
-			if '-' in version:
-				version, version_modifier = version.split('-', 1)
-				version_modifier = '-' + version_modifier
+			# Was only needed for very old versions of 0launch:
+			#if '-' in version:
+			#	version, version_modifier = version.split('-', 1)
+			#	version_modifier = '-' + version_modifier
 
 		for name, value in [('version', version),
 			            ('version-modifier', version_modifier),
