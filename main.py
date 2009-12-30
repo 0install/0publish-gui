@@ -545,13 +545,17 @@ class FeedEditor(loading.XDSLoader):
 		self.key = key_model[key_menu.get_active()][0]
 	
 	def export_stylesheet_and_key(self):
-		dir = os.path.dirname(self.pathname)
+		dir = os.path.dirname(os.path.abspath(self.pathname))
 		stylesheet = os.path.join(dir, 'interface.xsl')
 		if not os.path.exists(stylesheet):
 			shutil.copyfile(stylesheet_src, stylesheet)
 			rox.info("I have saved a stylesheet as '%s'. You should upload "
 				"this to your web-server in the same directory as the feed file. "
 				"This allows browsers to display the feed nicely." % stylesheet)
+
+		if os.path.abspath(self.pathname).endswith('/feed.xml'):
+			# Probably the feed's URL is the directory, so we'll get the key from the parent.
+			dir = os.path.dirname(dir)
 
 		exported =  signing.export_key(dir, self.key)
 		if exported:
