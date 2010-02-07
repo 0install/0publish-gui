@@ -103,7 +103,6 @@ def list_attrs(element):
 emptyFeed = """<?xml version='1.0'?>
 <interface xmlns="%s">
   <name>Name</name>
-  <group/>
 </interface>
 """ % (XMLNS_INTERFACE)
 

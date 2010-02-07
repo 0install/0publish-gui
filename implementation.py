@@ -108,8 +108,8 @@ class ImplementationProperties:
 				widgets.get_widget('version_number').set_text('')
 				released.set_text('')
 			else:
-				widgets.get_widget('version_number').set_text('1.0')
-				released.set_text(time.strftime('%Y-%m-%d'))
+				widgets.get_widget('version_number').set_text('0.1-pre')
+				#released.set_text(time.strftime('%Y-%m-%d'))
 
 			widgets.get_widget('cpu').set_active(0)
 			widgets.get_widget('os').set_active(0)
