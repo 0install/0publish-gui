@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python
 import sys
 from os.path import dirname, abspath
 import unittest
