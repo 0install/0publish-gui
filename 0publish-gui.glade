@@ -2092,8 +2092,11 @@ You should have received a copy of the GNU General Public License along with thi
 		<widget class="GtkComboBoxEntry" id="os">
 		  <property name="visible">True</property>
 		  <property name="items" translatable="yes">*
+Darwin
+FreeBSD
 Linux
-FreeBSD</property>
+MacOSX
+Windows</property>
 		  <property name="add_tearoffs">False</property>
 		  <property name="has_frame">True</property>
 		  <property name="focus_on_click">True</property>
