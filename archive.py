@@ -5,6 +5,7 @@ import rox, os, sys, urlparse, tempfile, shutil, time, urllib
 from rox import g, tasks
 import gtk.glade
 
+from zeroinstall.support import ro_rmtree
 from zeroinstall.injector import model
 from zeroinstall.zerostore import unpack, manifest, NotStored
 
@@ -110,6 +111,7 @@ class AddArchiveBox:
 					try:
 						unpack.unpack_archive(url, file(path), unpack_dir,
 								      type = type, start_offset = start_offset)
+						manifest.fixup_permissions(unpack_dir)
 					finally:
 						dialog.window.set_cursor(None)
 				finally:
@@ -199,7 +201,7 @@ class AddArchiveBox:
 	
 	def destroy_tmp(self):
 		if self.tmpdir:
-			shutil.rmtree(self.tmpdir)
+			ro_rmtree(self.tmpdir)
 			self.tmpdir = None
 
 	def create_archive_element(self, url, mime_type, root, extract, size, start_offset):
