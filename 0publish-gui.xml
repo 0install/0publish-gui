@@ -19,7 +19,17 @@ these feeds.</description>
   <icon href="http://0install.net/feed_icons/0publish-gui.png" type="image/png"/>
   <category>Development</category>
   <group license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui">
-    <implementation id="." version="0.10-post" self-test='tests/testall.py'/>
+    <command name='run' path='0publish-gui'>
+      <runner interface='http://repo.roscidus.com/python/python'>
+	<version before='3'/>
+      </runner>
+    </command>
+    <command name="test" path="tests/testall.py">
+      <runner interface='http://repo.roscidus.com/python/python'>
+	<version before='3'/>
+      </runner>
+    </command>
+    <implementation id="." version="0.10-post"/>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>
