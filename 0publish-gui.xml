@@ -29,7 +29,7 @@ these feeds.</description>
 	<version before="3"/>
       </runner>
     </command>
-    <implementation id="." released="2011-04-17" version="0.11"/>
+    <implementation id="." version="0.11-post"/>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>
