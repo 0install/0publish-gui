@@ -2936,6 +2936,7 @@ application/x-compressed-tar
 application/x-deb
 application/x-lzma-compressed-tar
 application/x-rpm
+application/x-ruby-gem
 application/x-tar
 application/zip
 </property>
