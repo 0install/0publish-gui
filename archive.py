@@ -147,6 +147,7 @@ class AddArchiveBox:
 				raise Exception("Enter a URL to download from!")
 
 			chooser = g.FileChooserDialog('Save archive as...', dialog, g.FILE_CHOOSER_ACTION_SAVE)
+			chooser.set_current_folder(os.getcwd())		# Needed with GTK 2.24 to avoid "Recently Used" thing
 			chooser.set_current_name(os.path.basename(url))
 			chooser.add_button(g.STOCK_CANCEL, g.RESPONSE_CANCEL)
 			chooser.add_button(g.STOCK_SAVE, g.RESPONSE_OK)
