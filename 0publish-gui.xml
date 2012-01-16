@@ -29,7 +29,7 @@ these feeds.</description>
 	<version before="3"/>
       </runner>
     </command>
-    <implementation id="." released="2012-01-16" version="0.12"/>
+    <implementation id="." version="0.12-post"/>
     <requires interface="http://0install.net/2007/interfaces/ZeroInstall.xml">
       <environment insert="" mode="prepend" name="PYTHONPATH"/>
     </requires>
