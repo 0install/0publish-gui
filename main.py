@@ -1,5 +1,7 @@
 from xml.dom import Node, minidom
 
+from StringIO import StringIO
+
 import rox, os, pango, sys, textwrap, traceback, subprocess, time, urlparse, shutil
 from rox import g, tasks, loading
 import gtk.glade
@@ -10,7 +12,7 @@ from implementation import ImplementationProperties
 from requires import Requires
 from xmltools import *
 
-from zeroinstall.injector import model
+from zeroinstall.injector import model, qdom
 from zeroinstall.zerostore import unpack, Stores
 
 RESPONSE_SAVE = 0
@@ -625,3 +627,8 @@ class FeedEditor(loading.XDSLoader):
 		add_versions(self.doc.documentElement, version = None)
 
 		return versions
+
+	def get_as_feed(self):
+		self.update_doc()
+		xml = self.doc.documentElement.toxml(encoding = 'utf-8')
+		return model.ZeroInstallFeed(qdom.parse(StringIO(xml)), local_path = self.pathname)
