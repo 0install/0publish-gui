@@ -1,7 +1,6 @@
-from xml.dom import Node, minidom
 import re
 
-import rox, os, sys, urlparse, tempfile, shutil, time, urllib
+import rox, os, urlparse, tempfile, time, urllib
 from rox import g, tasks
 import gtk.glade
 

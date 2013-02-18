@@ -1,14 +1,14 @@
-from xml.dom import Node, minidom
+from xml.dom import Node
 
-import rox, os, pango, sys, textwrap, traceback, subprocess, time, urlparse
-from rox import g, tasks, loading
+import os
+from rox import g
 import gtk.glade
 
 import main
 from xmltools import *
 
 from zeroinstall.injector import model
-from zeroinstall.zerostore import unpack, NotStored
+from zeroinstall.zerostore import NotStored
 
 RESPONSE_SAVE_AND_TEST = 1
 

@@ -1,9 +1,8 @@
 from zeroinstall import SafeException
 from zeroinstall.injector import gpg
-import tempfile, os, base64, sys, shutil, signal
+import tempfile, os, base64, shutil, signal
 import subprocess
 from rox import tasks, g
-import gobject
 
 umask = os.umask(0)
 os.umask(umask)

@@ -2,7 +2,7 @@ from xml.dom import Node, minidom
 
 from StringIO import StringIO
 
-import rox, os, pango, sys, textwrap, traceback, subprocess, time, urlparse, shutil
+import rox, os, pango, sys, textwrap, traceback, subprocess, shutil
 from rox import g, tasks, loading
 import gtk.glade
 
@@ -13,7 +13,7 @@ from requires import Requires
 from xmltools import *
 
 from zeroinstall.injector import model, qdom
-from zeroinstall.zerostore import unpack, Stores
+from zeroinstall.zerostore import Stores
 
 RESPONSE_SAVE = 0
 RESPONSE_SAVE_AND_TEST = 1
@@ -405,7 +405,6 @@ class FeedEditor(loading.XDSLoader):
 		initial_build = not self.impl_model.get_iter_root()
 
 		self.impl_model.clear()
-		to_expand = []
 
 		def add_impls(elem, iter, attrs):
 			"""Add all groups, implementations and requirements in elem"""

@@ -1,4 +1,4 @@
-import rox, os
+import os
 import gtk.glade
 
 import main
