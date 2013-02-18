@@ -25,27 +25,6 @@ def _io_callback(src, cond, blocker):
 	blocker.trigger()
 	return False
 
-# (version in ROX-Lib < 2.0.4 is buggy; missing IO_HUP)
-class InputBlocker(tasks.Blocker):
-	"""Triggers when os.read(stream) would not block."""
-	_tag = None
-	_stream = None
-	def __init__(self, stream):
-		tasks.Blocker.__init__(self)
-		self._stream = stream
-	
-	def add_task(self, task):
-		tasks.Blocker.add_task(self, task)
-		if self._tag is None:
-			self._tag = gobject.io_add_watch(self._stream, gobject.IO_IN | gobject.IO_HUP,
-				_io_callback, self)
-	
-	def remove_task(self, task):
-		tasks.Blocker.remove_task(self, task)
-		if not self._rox_lib_tasks:
-			gobject.source_remove(self._tag)
-			self._tag = None
-
 def get_secret_keys():
 	child = subprocess.Popen(('gpg', '--list-secret-keys', '--with-colons', '--with-fingerprint'),
 				 stdout = subprocess.PIPE)
@@ -146,7 +125,7 @@ def sign_xml(path, data, key, callback):
 		os.close(w)
 		w = None
 		while True:
-			input = InputBlocker(r)
+			input = tasks.InputBlocker(r)
 			yield input
 			msg = os.read(r, 100)
 			if not msg: break

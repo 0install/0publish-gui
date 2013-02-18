@@ -34,6 +34,7 @@ these feeds.</description>
       <environment insert="" mode="prepend" name="PYTHONPATH"/>
     </requires>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
+      <version not-before='2.0.5'/>
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>
   </group>
