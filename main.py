@@ -630,4 +630,4 @@ class FeedEditor(loading.XDSLoader):
 	def get_as_feed(self):
 		self.update_doc()
 		xml = self.doc.documentElement.toxml(encoding = 'utf-8')
-		return model.ZeroInstallFeed(qdom.parse(StringIO(xml)), local_path = self.pathname)
+		return model.ZeroInstallFeed(qdom.parse(StringIO(xml)), local_path = os.path.abspath(self.pathname))
