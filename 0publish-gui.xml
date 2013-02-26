@@ -29,12 +29,12 @@ these feeds.</description>
 	<version before="3"/>
       </runner>
     </command>
-    <implementation id="." version="0.12-post"/>
+    <implementation id="." released="2013-02-26" version="0.13"/>
     <requires interface="http://0install.net/2007/interfaces/ZeroInstall.xml">
       <environment insert="" mode="prepend" name="PYTHONPATH"/>
     </requires>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
-      <version not-before='2.0.5'/>
+      <version not-before="2.0.5"/>
       <environment insert="ROX-Lib2/python" name="PYTHONPATH"/>
     </requires>
   </group>
