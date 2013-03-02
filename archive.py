@@ -302,7 +302,7 @@ class DownloadBox:
 				got = 0
 
 				while True:
-					yield signing.InputBlocker(stream), cancelled
+					yield tasks.InputBlocker(stream), cancelled
 					if cancelled.happened:
 						raise Exception("Download cancelled at user's request")
 					data = os.read(stream.fileno(), 1024)

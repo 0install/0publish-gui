@@ -221,7 +221,7 @@ class FeedEditor(loading.XDSLoader):
 		def get_keygen_out():
 			errors = ''
 			while True:
-				yield signing.InputBlocker(child.stderr)
+				yield tasks.InputBlocker(child.stderr)
 				data = os.read(child.stderr.fileno(), 100)
 				if not data:
 					break
