@@ -13,7 +13,7 @@ import signing
 from xmltools import *
 import main
 
-dotted_ints = '[0-9]+(.[0-9]+)*'
+dotted_ints = '[0-9]+(\\.[0-9]+)*'
 version_regexp = '[^a-zA-Z0-9](%s)(-(pre|rc|post|)%s)*' % (dotted_ints, dotted_ints)
 
 def get_combo_value(combo):
