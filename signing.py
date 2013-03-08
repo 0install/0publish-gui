@@ -37,12 +37,14 @@ def get_secret_keys():
 		line = line.split(':')
 		if line[0] == 'fpr':
 			keys.append([line[9], None])
-	# When listing secret keys, the identity show may not be the primary identity as selected by
+	# When listing secret keys, the identity shown may not be the primary identity as selected by
 	# the user or shown when verifying a signature. However, the primary identity can be obtained
 	# by listing the accompanying public key.
 	loaded_keys = gpg.load_keys([k[0] for k in keys])
 	for key in keys:
-		key[1] = loaded_keys[key[0]].name
+		key[1] = "{name} - {id}".format(
+				name = loaded_keys[key[0]].name,
+				id = key[0][-8:])
 	return keys
 
 def check_signature(path):
