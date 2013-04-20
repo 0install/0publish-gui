@@ -32,6 +32,7 @@ these feeds.</description>
     <implementation id="." version="0.14-post"/>
     <requires interface="http://0install.net/2007/interfaces/ZeroInstall.xml">
       <environment insert="" mode="prepend" name="PYTHONPATH"/>
+      <version not-before='2.1-post'/>
     </requires>
     <requires interface="http://rox.sourceforge.net/2005/interfaces/ROX-Lib">
       <version not-before="2.0.5"/>

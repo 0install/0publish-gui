@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from zeroinstall.support.tasks import get_loop
+get_loop().gobject.threads_init()
+
 import rox, sys
 from optparse import OptionParser
 from rox import g
