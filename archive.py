@@ -266,7 +266,7 @@ class AddArchiveBox:
 
 			impl_element.setAttribute('id', id)
 			impl_element.setAttribute('released', time.strftime('%Y-%m-%d'))
-			if version: impl_element.setAttribute('version', version)
+			impl_element.setAttribute('version', version or '0.1')
 			created_impl = True
 		else:
 			created_impl = False
