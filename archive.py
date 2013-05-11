@@ -43,6 +43,17 @@ def try_parse_version(version_str):
 		warn("Bad version number '%s'", ex)
 		return None
 
+def sanity_check_tar_file(path, start_offset):
+	import subprocess
+	with open(path, 'rb') as stream:
+		stream.seek(start_offset)
+		child = subprocess.Popen(['tar', 'tf', path], stdout = subprocess.PIPE)
+		stdout, unused = child.communicate(None)
+		child.wait()
+		first = stdout.split('\n', 1)[0]
+		if first.startswith('./'):
+			rox.alert('WARNING: leading "./" in tar archive member names (e.g. "%s"); extracting a subdirectory may not work. Consider recreating the archive without the prefix.' % first)
+
 class AddArchiveBox:
 	def __init__(self, feed_editor, local_archive = None):
 		self.feed_editor = feed_editor
@@ -96,6 +107,9 @@ class AddArchiveBox:
 				# Autopackage isn't a real type. Examine the .package file
 				# and find out what it really is.
 				start_offset, type = autopackage_get_details(path)
+
+			if type.endswith('-tar'):
+				sanity_check_tar_file(path, start_offset = start_offset)
 
 			self.tmpdir = tempfile.mkdtemp('-0publish-gui')
 			try:
