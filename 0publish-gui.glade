@@ -2939,6 +2939,7 @@ application/x-lzma-compressed-tar
 application/x-rpm
 application/x-ruby-gem
 application/x-tar
+application/x-xz-compressed-tar
 application/zip
 </property>
 			  <property name="add_tearoffs">False</property>
