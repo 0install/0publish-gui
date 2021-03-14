@@ -15,7 +15,7 @@ these feeds.</description>
     <!-- Update the copy of the version number in 0publish -->
     <release:action phase="commit-release">sed -i &quot;s/^version = '.*'$/version = '$RELEASE_VERSION'/&quot; 0publish-gui</release:action>
   </release:management>
-  <feed-for interface="http://0install.net/2007/interfaces/0publish-gui.xml"/>
+  <feed-for interface="https://apps.0install.net/0install/0publish-gui.xml"/>
   <icon href="https://0install.net/feed_icons/0publish-gui.png" type="image/png"/>
   <category>Development</category>
   <group license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui">
@@ -30,7 +30,7 @@ these feeds.</description>
       </runner>
     </command>
     <implementation id="." version="0.14-post"/>
-    <requires interface="http://0install.net/2007/interfaces/ZeroInstall.xml">
+    <requires interface="https://apps.0install.net/0install/0install-python.xml">
       <environment insert="" mode="prepend" name="PYTHONPATH"/>
       <version not-before='2.1-post'/>
     </requires>
