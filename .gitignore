@@ -1,1 +1,8 @@
-*.pyc
+# Caches
+__pycache__/
+*.py[cod]
+.idea/
+
+# Output
+/0publish-gui-*.xml
+/0publish-gui-*.tar.bz2

@@ -12,7 +12,7 @@ if sys.version_info < (2, 4):
 
 from main import FeedEditor, choose_feed
 
-version = '0.14'
+version = 'git-checkout'
 parser = OptionParser(usage="usage: %prog [options] interface")
 parser.add_option("-V", "--version", help="display version information", action='store_true')
 (options, args) = parser.parse_args()
