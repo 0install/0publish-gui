@@ -13,7 +13,7 @@ these feeds.</description>
   <feed-for interface="https://apps.0install.net/0install/0publish-gui-python.xml"/>
   <icon href="https://0install.net/feed_icons/0publish-gui.png" type="image/png"/>
   <category>Development</category>
-  <group license="OSI Approved :: GNU General Public License (GPL)" main="0publish-gui">
+  <group license="GPL-2.0-or-later" main="0publish-gui">
     <command name="run" path="0publish-gui">
       <runner interface="https://apps.0install.net/python/python.xml">
 	    <version before="3"/>
